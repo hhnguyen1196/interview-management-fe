@@ -1,0 +1,7 @@
+<a [routerLink]="item.routerLink"
+   routerLinkActive="bg-gray-300 !text-blue-600"
+   [routerLinkActiveOptions]="item.routerLink === '/' || item.routerLink === '' ? { exact: true } : { exact: false }"
+   class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-300">
+  <i [ngClass]="item.icon + ' !text-2xl'"></i>
+  <span class="ms-3">{{ item.label }}</span>
+</a>

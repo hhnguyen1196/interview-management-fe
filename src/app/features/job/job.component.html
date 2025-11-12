@@ -1,0 +1,170 @@
+<p-toolbar styleClass="mb-2">
+  <ng-template #start>
+    <p-button class="ml-4" label="Tạo công việc" icon="pi pi-plus" severity="secondary" (onClick)="openCreateJob()"/>
+  </ng-template>
+
+  <ng-template #end>
+    <p-button class="mr-4" label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()"/>
+  </ng-template>
+</p-toolbar>
+
+<p-table
+  #dt
+  [value]="jobs()"
+  [rows]="10"
+  [columns]="cols"
+  [paginator]="true"
+  [rowHover]="true"
+  dataKey="id"
+  currentPageReportTemplate="Tổng số {totalRecords} bản ghi"
+  [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[10, 20]"
+>
+  <ng-template #caption>
+    <div class="flex items-center justify-between mx-3">
+      <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách công việc</h5>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search"/>
+        <input pInputText type="text" name="search" (input)="onGlobalFilter(dt, $event)"
+               class="w-96" placeholder="Search..."/>
+      </p-iconfield>
+
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th style="min-width: 14rem">Tiêu đề</th>
+      <th style="min-width: 18rem">Kỹ năng</th>
+      <th style="min-width: 12rem">Trình độ</th>
+      <th style="min-width: 10rem">Ngày băt đầu</th>
+      <th style="min-width: 10rem">Ngày kết thúc</th>
+      <th style="min-width: 10rem">Trạng thái</th>
+      <th></th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-job>
+    <tr>
+      <td>{{ job.title }}</td>
+      <td>{{ getSkillLabels(job.skills) }}</td>
+      <td>{{ levelMap[job.level] }}</td>
+      <td>{{ job.startDate | date:'dd/MM/yyyy' }}</td>
+      <td>{{ job.endDate | date:'dd/MM/yyyy' }}</td>
+      <td>
+        <p-tag [value]="job.status" [severity]="getStatusSeverity(job.status)"/>
+      </td>
+      <td>
+        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editJob(job)"/>
+        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                  (click)="deleteJob(job)"/>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="jobDialog" [style]="{ width: '60%' }" header="Chi tiết công việc" [modal]="true">
+  <ng-template #content>
+    <div class="flex flex-col gap-4">
+      <div>
+        <label for="title" class="block font-bold mb-3">Tiêu đề công việc</label>
+        <input type="text" pInputText id="title" [(ngModel)]="job.title" fluid/>
+        @if (submitted && !job.title) {
+          <small class="text-red-500">Tiêu đề công việc là bắt buộc.</small>
+        }
+      </div>
+
+      <div class="w-full">
+        <label for="skills" class="block font-bold mb-3">Kỹ năng</label>
+        <p-multiselect
+          id="skills"
+          class="w-full"
+          [options]="multiselectSkill"
+          [(ngModel)]="job.skills"
+          optionLabel="label"
+          optionValue="value"
+          display="comma"
+          [filter]="true"
+          placeholder="Chọn kỹ năng"
+          [maxSelectedLabels]="6"
+          selectedItemsLabel="{0} kỹ năng"
+        >
+          <ng-template #item let-skill>
+            <div class="flex items-center">
+              <span class="mr-2"></span>
+              <div>{{ skill.label }}</div>
+            </div>
+          </ng-template>
+        </p-multiselect>
+        @if (submitted && (!job.skills || job.skills.length === 0)) {
+          <small class="text-red-500">Kỹ năng là bắt buộc.</small>
+        }
+      </div>
+
+      <div>
+        <label for="level" class="block font-bold mb-3">Trình độ</label>
+        <p-select [(ngModel)]="job.level" inputId="level" [options]="levelOptions"
+                  optionLabel="label" optionValue="value" placeholder="Chọn trình độ" fluid/>
+        @if (submitted && !job.level) {
+          <small class="text-red-500">Trình độ là bắt buộc.</small>
+        }
+      </div>
+
+      <div>
+        <label for="salary" class="block font-bold mb-3">Mức lương</label>
+        <input type="text" pInputText id="salary" [(ngModel)]="job.salary" fluid/>
+      </div>
+
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <label for="startDate" class="block font-bold mb-3">Ngày bắt đầu</label>
+          <p-datepicker
+            inputId="startDate"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            [(ngModel)]="job.startDate"
+            fluid
+          ></p-datepicker>
+          @if (submitted && !job.startDate) {
+            <small class="text-red-500">Ngày bắt đầu là bắt buộc.</small>
+          }
+        </div>
+
+        <div class="flex-1">
+          <label for="endDate" class="block font-bold mb-3">Ngày kết thúc</label>
+          <p-datepicker
+            inputId="endDate"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            [(ngModel)]="job.endDate"
+            fluid
+          ></p-datepicker>
+          @if (submitted && !job.endDate) {
+            <small class="text-red-500">Ngày kết thúc là bắt buộc.</small>
+          }
+        </div>
+      </div>
+
+      <div>
+        <label for="workingAddress" class="block font-bold mb-3">Địa chỉ làm việc</label>
+        <input type="text" pInputText id="workingAddress" [(ngModel)]="job.workingAddress" fluid/>
+        @if (submitted && !job.workingAddress) {
+          <small class="text-red-500">Địa chỉ làm việc là bắt buộc.</small>
+        }
+      </div>
+
+      <div>
+        <label for="description" class="block font-bold mb-3">Mô tả</label>
+        <textarea id="description" pTextarea [(ngModel)]="job.description" required rows="8" cols="20"
+                  fluid></textarea>
+      </div>
+
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Đóng" icon="pi pi-times" text (click)="hideDialog()"/>
+    <p-button label="Lưu" icon="pi pi-check" (click)="saveProduct()"/>
+  </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }"></p-confirmdialog>
+<p-toast class="" styleClass="mt-12 custom-toast"/>
