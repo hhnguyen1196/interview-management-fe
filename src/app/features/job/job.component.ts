@@ -58,11 +58,15 @@ export class JobComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initData();
     this.loadData();
   }
 
   @ViewChild('dt') dt!: Table;
   jobs = signal<Job[]>([]);
+  totalRecords = signal<number>(0);
+  page = signal<number>(0);
+  size = signal<number>(10);
   job!: Job;
   submitted = false;
   jobDialog = false;
@@ -85,30 +89,28 @@ export class JobComponent implements OnInit {
 
   saveProduct() {
     this.submitted = true;
-    let _products = this.jobs();
-    // if (!(this.job.title?.trim() && this.job.skills?.length)) {
-    //   return;
-    // }
-    //
-    // if (this.job.id) {
-    //   _products[this.findIndexById(this.job.id)] = this.job;
-    //   this.jobs.set([..._products]);
-    //   this.messageService.add({
-    //     severity: 'success',
-    //     summary: 'Successful',
-    //     detail: 'Product Updated',
-    //     life: 3000
-    //   });
-    // } else {
-    //   this.job.id = this.createId();
-    //   this.messageService.add({
-    //     severity: 'success',
-    //     summary: 'Successful',
-    //     detail: 'Product Created',
-    //     life: 3000
-    //   });
-    //   this.jobs.set([..._products, this.job]);
-    // }
+
+    if (!(this.job.title?.trim() && this.job.skills?.length)) {
+      return;
+    }
+
+    if (this.job.id) {
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Successful',
+        detail: 'Product Updated',
+        life: 3000
+      });
+    } else {
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Successful',
+        detail: 'Product Created',
+        life: 3000
+      });
+    }
     this.messageService.add({
       severity: 'info',
       icon: 'pi-check-circle',
@@ -119,8 +121,8 @@ export class JobComponent implements OnInit {
     this.job = {};
   }
 
-  editJob(product: Job) {
-    this.job = {...product};
+  editJob(job: Job) {
+    this.job = {...job};
     this.jobDialog = true;
   }
 
@@ -141,15 +143,6 @@ export class JobComponent implements OnInit {
     });
   }
 
-  createId(): string {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-  }
-
   hideDialog() {
     this.jobDialog = false;
     this.submitted = false;
@@ -167,8 +160,8 @@ export class JobComponent implements OnInit {
         return 'danger';
       case 'IN_PROGRESS':
         return 'info';
-      case 'CANCELLED':
-        return 'info';
+      case 'CANCELED':
+        return 'secondary';
       default:
         return 'info';
     }
@@ -178,15 +171,13 @@ export class JobComponent implements OnInit {
     return skills?.map(s => this.skillMap[s])?.join(', ') || '';
   }
 
-  loadData() {
-    this.jobService.getJobs({"pagination": {
-        "pageNumber": 10,
-        "pageSize": 0
-      },
-      "search": ""}).subscribe(data => {
-      this.jobs.set(data);
-    });
+  onPageChange(event: any) {
+    this.page.set(event.first / event.rows);
+    this.size.set(event.rows);
+    this.loadData();
+  }
 
+  initData() {
     this.cols = [
       {field: 'title', header: 'Tiêu đề'},
       {field: 'skills', header: 'Kỹ năng'},
@@ -195,6 +186,7 @@ export class JobComponent implements OnInit {
     ];
 
     this.exportColumns = this.cols.map((col) => ({title: col.header, dataKey: col.field}));
+
     this.multiselectSkill = [
       {label: 'Java', value: 'JAVA'},
       {label: 'NodeJs', value: 'NODE_JS'},
@@ -222,5 +214,16 @@ export class JobComponent implements OnInit {
 
     this.skillMap = toLookupMap(this.multiselectSkill);
     this.levelMap = toLookupMap(this.levelOptions);
+  }
+
+  loadData() {
+    this.jobService.getJobs({
+      page: this.page(),
+      size: this.size(),
+      search: ""
+    }).subscribe(data => {
+      this.jobs.set(data.jobList);
+      this.totalRecords.set(data.totalElements)
+    });
   }
 }

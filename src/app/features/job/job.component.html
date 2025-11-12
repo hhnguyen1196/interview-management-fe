@@ -11,14 +11,17 @@
 <p-table
   #dt
   [value]="jobs()"
-  [rows]="10"
+  [rows]="size()"
   [columns]="cols"
   [paginator]="true"
   [rowHover]="true"
   dataKey="id"
+  [totalRecords]="totalRecords()"
   currentPageReportTemplate="Tổng số {totalRecords} bản ghi"
   [showCurrentPageReport]="true"
   [rowsPerPageOptions]="[10, 20]"
+  [lazy]="true"
+  (onLazyLoad)="onPageChange($event)"
 >
   <ng-template #caption>
     <div class="flex items-center justify-between mx-3">
