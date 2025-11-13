@@ -2,7 +2,7 @@ import {Component, OnInit, signal, ViewChild} from '@angular/core';
 import {Toolbar} from 'primeng/toolbar';
 import {Button} from 'primeng/button';
 import {Column, ExportColumn, Job, JobService, Level, Skill} from './job.service';
-import {Table, TableModule} from 'primeng/table';
+import {Table, TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {IconField, IconFieldModule} from 'primeng/iconfield';
 import {InputIcon, InputIconModule} from 'primeng/inputicon';
@@ -77,75 +77,94 @@ export class JobComponent implements OnInit {
   cols!: Column[];
   exportColumns!: ExportColumn[];
 
+  loadData() {
+    this.jobService.getJobs({
+      page: this.page(),
+      size: this.size(),
+      search: ""
+    }).subscribe(response => {
+      this.jobs.set(response.jobList);
+      this.totalRecords.set(response.totalElements)
+    });
+  }
+
   openCreateJob() {
     this.job = {};
     this.submitted = false;
     this.jobDialog = true;
   }
 
+  hideDialog() {
+    this.jobDialog = false;
+    this.submitted = false;
+  }
+
   exportCSV() {
     this.dt.exportCSV();
   }
 
-  saveProduct() {
-    this.submitted = true;
+  editJob(job: Job) {
+    console.log(new Date().toString());
+    this.job = {
+      ...job,
+      startDate: new Date(job.startDate!),
+      endDate: new Date(job.endDate!),
+    };
+    this.jobDialog = true;
+  }
 
-    if (!(this.job.title?.trim() && this.job.skills?.length)) {
+  saveJob() {
+    this.submitted = true;
+    if (!(this.job.title?.trim() && this.job.skills?.length && this.job.level && this.job.startDate
+      && this.job.endDate && this.job.workingAddress?.trim())) {
       return;
     }
-
-    if (this.job.id) {
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Successful',
-        detail: 'Product Updated',
-        life: 3000
-      });
-    } else {
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Successful',
-        detail: 'Product Created',
-        life: 3000
-      });
-    }
-    this.messageService.add({
-      severity: 'info',
-      icon: 'pi-check-circle',
-      summary: 'Tạo công việc thành công',
-      life: 2000
-    });
+    const isCreated = !this.job.id
+    const successMessage = isCreated ? 'Tạo công việc thành công' : 'Cập nhật công việc thành công';
+    const errorMessage = isCreated ? 'Tạo công việc thất bại' : 'Cập nhật công việc thất bại';
+    this.jobService.saveJob(this.job).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'info',
+            icon: 'pi-check-circle',
+            summary: successMessage,
+            life: 3000
+          });
+          this.loadData();
+        },
+        error: err => {
+          console.log(err);
+          this.messageService.add({
+            severity: 'error',
+            icon: 'pi-times-circle',
+            summary: errorMessage,
+            life: 3000
+          });
+        }
+      }
+    )
     this.jobDialog = false;
     this.job = {};
   }
 
-  editJob(job: Job) {
-    this.job = {...job};
-    this.jobDialog = true;
-  }
-
-  deleteJob(product: Job) {
+  deleteJob(id: number) {
     this.confirmationService.confirm({
       message: 'Bạn có chắc chắn muốn xóa bản ghi này không?',
       header: 'Xác nhận xóa',
       accept: () => {
-        this.jobs.set(this.jobs().filter((val) => val.id !== product.id));
+        this.jobs.set(this.jobs().filter((val) => val.id !== id));
         this.job = {};
         this.messageService.add({
           severity: 'info',
           icon: 'pi-check-circle',
           summary: 'Xóa công việc thành công',
-          life: 2000
-        });
-      }
+          life: 3000
+        },);
+      },
+      icon: 'pi pi-info-circle',
+      acceptLabel: 'Xác nhận',
+      rejectLabel: 'Hủy',
     });
-  }
-
-  hideDialog() {
-    this.jobDialog = false;
-    this.submitted = false;
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -171,9 +190,12 @@ export class JobComponent implements OnInit {
     return skills?.map(s => this.skillMap[s])?.join(', ') || '';
   }
 
-  onPageChange(event: any) {
-    this.page.set(event.first / event.rows);
-    this.size.set(event.rows);
+  onPageChange(event: TableLazyLoadEvent) {
+    const first = event.first ?? 0;
+    const rows = event.rows ?? this.size();
+    const currentPage = Math.floor(first / rows);
+    this.page.set(currentPage);
+    this.size.set(rows);
     this.loadData();
   }
 
@@ -214,16 +236,5 @@ export class JobComponent implements OnInit {
 
     this.skillMap = toLookupMap(this.multiselectSkill);
     this.levelMap = toLookupMap(this.levelOptions);
-  }
-
-  loadData() {
-    this.jobService.getJobs({
-      page: this.page(),
-      size: this.size(),
-      search: ""
-    }).subscribe(data => {
-      this.jobs.set(data.jobList);
-      this.totalRecords.set(data.totalElements)
-    });
   }
 }

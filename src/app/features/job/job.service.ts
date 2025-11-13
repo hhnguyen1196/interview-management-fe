@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {Option} from '../../utils/common-utils';
-import {Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {ApiService} from '../../services/api.service';
 
@@ -20,7 +20,7 @@ export interface Level extends Option {
 }
 
 export interface Job {
-  id?: string;
+  id?: number;
   title?: string;
   skills?: string[] | null;
   level?: string;
@@ -52,13 +52,30 @@ export interface ExportColumn {
 export class JobService {
   private apiService = inject(ApiService);
 
-  getJobs(request: JobListRequest): Observable<JobList> {
+  getJobs(data: JobListRequest): Observable<JobList> {
     const params = {
-      page: request.page,
-      size: request.size,
-      search: request.search
+      page: data.page,
+      size: data.size,
+      search: data.search
     };
-    return this.apiService.get<JobList>(environment.endpoints.jobs, params);
+    return this.apiService.get<JobList>(environment.endpoints.jobs, params).pipe(
+      map(response => {
+        if (response.status === 200) {
+          return response.body!;
+        }
+        throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
+      })
+    );
+  }
+
+  saveJob(data: Job): Observable<void> {
+    return this.apiService.post<void, Job>(environment.endpoints.jobs, data).pipe(
+      map(response => {
+        if (!(response.status === 201 || response.status === 204)) {
+          throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
+        }
+      })
+    );
   }
 }
 

@@ -5,6 +5,7 @@ import {provideAnimationsAsync} from '@angular/platform-browser/animations/async
 import {providePrimeNG} from 'primeng/config';
 import {provideHttpClient, withFetch, withInterceptorsFromDi} from '@angular/common/http';
 import {BlueAura} from './primeng-blue-theme';
+import './shared/date-override';
 
 export const appConfig: ApplicationConfig = {
   providers: [
