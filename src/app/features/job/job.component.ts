@@ -1,7 +1,7 @@
 import {Component, OnInit, signal, ViewChild} from '@angular/core';
 import {Toolbar} from 'primeng/toolbar';
 import {Button} from 'primeng/button';
-import {Column, ExportColumn, Job, JobService, Level, Skill} from './job.service';
+import {Column, ExportColumn, Job, JobService, JobStatus, Level, Skill} from './job.service';
 import {Table, TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {IconField, IconFieldModule} from 'primeng/iconfield';
@@ -19,7 +19,8 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {DatePickerModule} from 'primeng/datepicker';
 import {ToastModule} from 'primeng/toast';
-import {toLookupMap} from '../../utils/common-utils';
+import {toLookupMap} from '../../utils/helpers';
+import {jobLevelOptions, jobSkillOptions, jobStatusOptions} from '../../utils/options';
 
 @Component({
   selector: 'app-job',
@@ -59,7 +60,6 @@ export class JobComponent implements OnInit {
 
   ngOnInit(): void {
     this.initData();
-    this.loadData();
   }
 
   @ViewChild('dt') dt!: Table;
@@ -67,13 +67,16 @@ export class JobComponent implements OnInit {
   totalRecords = signal<number>(0);
   page = signal<number>(0);
   size = signal<number>(10);
+  search = signal<string>('');
   job!: Job;
   submitted = false;
   jobDialog = false;
   multiselectSkill!: Skill[];
   levelOptions!: Level[];
+  statusOptions!: JobStatus[];
   skillMap!: Record<string, string>;
   levelMap!: Record<string, string>;
+  jobMap!: Record<string, string>;
   cols!: Column[];
   exportColumns!: ExportColumn[];
 
@@ -81,11 +84,20 @@ export class JobComponent implements OnInit {
     this.jobService.getJobs({
       page: this.page(),
       size: this.size(),
-      search: ""
-    }).subscribe(response => {
-      this.jobs.set(response.jobList);
-      this.totalRecords.set(response.totalElements)
+      search: this.search(),
+    }).subscribe(data => {
+      this.jobs.set(data.jobList);
+      this.totalRecords.set(data.totalElements)
     });
+  }
+
+  getHeaderText() {
+    return this.job?.id ? 'CHI TIẾT CÔNG VIỆC' : 'TẠO MỚI CÔNG VIỆC';
+  }
+
+  onSearch(event: Event) {
+    this.search.set((event.target as HTMLInputElement).value);
+    this.loadData();
   }
 
   openCreateJob() {
@@ -95,6 +107,7 @@ export class JobComponent implements OnInit {
   }
 
   hideDialog() {
+    this.job = {};
     this.jobDialog = false;
     this.submitted = false;
   }
@@ -103,14 +116,17 @@ export class JobComponent implements OnInit {
     this.dt.exportCSV();
   }
 
-  editJob(job: Job) {
-    console.log(new Date().toString());
-    this.job = {
-      ...job,
-      startDate: new Date(job.startDate!),
-      endDate: new Date(job.endDate!),
-    };
-    this.jobDialog = true;
+  editJob(id: number) {
+    this.jobService.getJobById(id).subscribe({
+      next: data => {
+        this.job = {
+          ...data,
+          startDate: new Date(data.startDate!),
+          endDate: new Date(data.endDate!),
+        };
+        this.jobDialog = true;
+      }
+    })
   }
 
   saveJob() {
@@ -151,24 +167,32 @@ export class JobComponent implements OnInit {
     this.confirmationService.confirm({
       message: 'Bạn có chắc chắn muốn xóa bản ghi này không?',
       header: 'Xác nhận xóa',
-      accept: () => {
-        this.jobs.set(this.jobs().filter((val) => val.id !== id));
-        this.job = {};
-        this.messageService.add({
-          severity: 'info',
-          icon: 'pi-check-circle',
-          summary: 'Xóa công việc thành công',
-          life: 3000
-        },);
-      },
-      icon: 'pi pi-info-circle',
       acceptLabel: 'Xác nhận',
       rejectLabel: 'Hủy',
+      accept: () => {
+        this.jobService.deleteJob(id).subscribe({
+          next: () => {
+            this.loadData();
+            this.messageService.add({
+              severity: 'info',
+              icon: 'pi-check-circle',
+              summary: 'Xóa công việc thành công',
+              life: 3000
+            });
+          },
+          error: err => {
+            console.log(err);
+            this.messageService.add({
+              severity: 'error',
+              icon: 'pi-times-circle',
+              summary: 'Xóa công việc thất bại',
+              life: 3000
+            });
+          }
+        });
+      },
     });
-  }
-
-  onGlobalFilter(table: Table, event: Event) {
-    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    this.job = {};
   }
 
   getStatusSeverity(status: string) {
@@ -177,10 +201,6 @@ export class JobComponent implements OnInit {
         return 'success';
       case 'CLOSED':
         return 'danger';
-      case 'IN_PROGRESS':
-        return 'info';
-      case 'CANCELED':
-        return 'secondary';
       default:
         return 'info';
     }
@@ -209,32 +229,12 @@ export class JobComponent implements OnInit {
 
     this.exportColumns = this.cols.map((col) => ({title: col.header, dataKey: col.field}));
 
-    this.multiselectSkill = [
-      {label: 'Java', value: 'JAVA'},
-      {label: 'NodeJs', value: 'NODE_JS'},
-      {label: '.NET', value: 'DOT_NET'},
-      {label: 'C++', value: 'CPP'},
-      {label: 'Angular', value: 'ANGULAR'},
-      {label: 'ReactJS', value: 'REACT_JS'},
-      {label: 'VueJS', value: 'VUE_JS'},
-      {label: 'Python', value: 'PYTHON'},
-      {label: 'SQL', value: 'SQL'},
-      {label: 'Business Analysis', value: 'BUSINESS_ANALYSIS'},
-      {label: 'Docker', value: 'DOCKER'},
-      {label: 'Git', value: 'GIT'}
-    ];
-
-    this.levelOptions = [
-      {label: 'Fresher 1', value: 'FRESHER_1'},
-      {label: 'Junior 2.1', value: 'JUNIOR_2_1'},
-      {label: 'Junior 2.2', value: 'JUNIOR_2_2'},
-      {label: 'Junior 2.3', value: 'JUNIOR_2_3'},
-      {label: 'Senior 3.1', value: 'SENIOR_3_1'},
-      {label: 'Senior 3.2', value: 'SENIOR_3_2'},
-      {label: 'Leader', value: 'LEADER'}
-    ];
+    this.multiselectSkill = jobSkillOptions;
+    this.levelOptions = jobLevelOptions;
+    this.statusOptions = jobStatusOptions;
 
     this.skillMap = toLookupMap(this.multiselectSkill);
     this.levelMap = toLookupMap(this.levelOptions);
+    this.jobMap = toLookupMap(this.statusOptions);
   }
 }

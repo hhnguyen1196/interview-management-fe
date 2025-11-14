@@ -1,8 +1,8 @@
 import {inject, Injectable} from '@angular/core';
-import {Option} from '../../utils/common-utils';
 import {map, Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {ApiService} from '../../services/api.service';
+import {Option} from '../../utils/options';
 
 export interface Pagination {
   page: number;
@@ -17,6 +17,9 @@ export interface Skill extends Option {
 }
 
 export interface Level extends Option {
+}
+
+export interface JobStatus extends Option {
 }
 
 export interface Job {
@@ -72,6 +75,27 @@ export class JobService {
     return this.apiService.post<void, Job>(environment.endpoints.jobs, data).pipe(
       map(response => {
         if (!(response.status === 201 || response.status === 204)) {
+          throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
+        }
+      })
+    );
+  }
+
+  getJobById(id: number): Observable<Job> {
+    return this.apiService.get<Job>(`${environment.endpoints.jobs}/${id}`).pipe(
+      map(response => {
+        if (response.status === 200) {
+          return response.body!;
+        }
+        throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
+      })
+    );
+  }
+
+  deleteJob(id: number): Observable<void> {
+    return this.apiService.delete<void>(`${environment.endpoints.jobs}/${id}`).pipe(
+      map(response => {
+        if (response.status !== 204) {
           throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
         }
       })

@@ -28,21 +28,20 @@
       <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách công việc</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search"/>
-        <input pInputText type="text" name="search" (input)="onGlobalFilter(dt, $event)"
+        <input pInputText type="text" name="search" [value]="search()" (keyup.enter)="onSearch($event)"
                class="w-96" placeholder="Search..."/>
       </p-iconfield>
-
     </div>
   </ng-template>
   <ng-template #header>
     <tr>
-      <th style="min-width: 14rem">Tiêu đề</th>
+      <th style="min-width: 18rem">Tiêu đề</th>
       <th style="min-width: 18rem">Kỹ năng</th>
-      <th style="min-width: 12rem">Trình độ</th>
+      <th style="min-width: 10rem">Trình độ</th>
       <th style="min-width: 10rem">Ngày băt đầu</th>
       <th style="min-width: 10rem">Ngày kết thúc</th>
       <th style="min-width: 10rem">Trạng thái</th>
-      <th></th>
+      <th style="min-width: 10rem"></th>
     </tr>
   </ng-template>
   <ng-template #body let-job>
@@ -53,10 +52,10 @@
       <td>{{ job.startDate | date:'dd/MM/yyyy' }}</td>
       <td>{{ job.endDate | date:'dd/MM/yyyy' }}</td>
       <td>
-        <p-tag [value]="job.status" [severity]="getStatusSeverity(job.status)"/>
+        <p-tag [value]="jobMap[job.status]" [severity]="getStatusSeverity(job.status)"/>
       </td>
       <td>
-        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editJob(job)"/>
+        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editJob(job.id)"/>
         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
                   (click)="deleteJob(job.id)"/>
       </td>
@@ -64,11 +63,12 @@
   </ng-template>
 </p-table>
 
-<p-dialog [(visible)]="jobDialog" [style]="{ width: '60%' }" header="Chi tiết công việc" [modal]="true">
+<p-dialog [(visible)]="jobDialog" styleClass="custom-dialog" [style]="{ width: '60%' }"
+          [header]="getHeaderText()" [modal]="true" (onHide)="hideDialog()">
   <ng-template #content>
     <div class="flex flex-col gap-4">
       <div>
-        <label for="title" class="block font-bold mb-3">Tiêu đề công việc</label>
+        <label for="title" class="block font-bold my-3">Tiêu đề công việc</label>
         <input type="text" pInputText id="title" [(ngModel)]="job.title" fluid/>
         @if (submitted && !job.title) {
           <small class="text-red-500">Tiêu đề công việc là bắt buộc.</small>
@@ -76,9 +76,8 @@
       </div>
 
       <div class="w-full">
-        <label for="skills" class="block font-bold mb-3">Kỹ năng</label>
+        <label class="block font-bold mb-3">Kỹ năng</label>
         <p-multiselect
-          id="skills"
           class="w-full"
           [options]="multiselectSkill"
           [(ngModel)]="job.skills"
@@ -103,9 +102,9 @@
       </div>
 
       <div>
-        <label for="level" class="block font-bold mb-3">Trình độ</label>
-        <p-select [(ngModel)]="job.level" inputId="level" [options]="levelOptions"
-                  optionLabel="label" optionValue="value" placeholder="Chọn trình độ" fluid/>
+        <label class="block font-bold mb-3">Trình độ</label>
+        <p-select [(ngModel)]="job.level" [options]="levelOptions" optionLabel="label" optionValue="value"
+                  placeholder="Chọn trình độ" fluid/>
         @if (submitted && !job.level) {
           <small class="text-red-500">Trình độ là bắt buộc.</small>
         }
@@ -154,6 +153,12 @@
         }
       </div>
 
+      @if (job.status) {
+        <div>
+          <label class="block font-bold mb-3">Trạng thái</label>
+          <p-select [(ngModel)]="job.status" [options]="statusOptions" optionLabel="label" optionValue="value" fluid/>
+        </div>
+      }
       <div>
         <label for="description" class="block font-bold mb-3">Mô tả</label>
         <textarea id="description" pTextarea [(ngModel)]="job.description" required rows="8" cols="20"

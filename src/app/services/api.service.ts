@@ -33,6 +33,16 @@ export class ApiService {
     return this.http.post<T>(url, body, {headers, observe: 'response'});
   }
 
+  /**
+   * API DELETE
+   * @param endpoint - endpoint of the API
+   */
+  delete<T>(endpoint: string): Observable<HttpResponse<T>> {
+    const url = `${this.url}/${endpoint}`;
+    const headers = this.getHeaders();
+    return this.http.delete<T>(url, {headers, observe: 'response'});
+  }
+
   private getHeaders(): HttpHeaders {
     return new HttpHeaders();
   }

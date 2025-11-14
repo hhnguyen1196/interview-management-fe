@@ -11,4 +11,16 @@
   .custom-toast .p-toast-message-text {
     @apply flex-row items-center;
   }
+
+  .custom-dialog .p-dialog-header {
+    @apply bg-gray-100 py-2 rounded-t-lg;
+  }
+
+  .custom-dialog .p-dialog-footer {
+    @apply bg-gray-100 rounded-b-lg;
+  }
+
+  .custom-dialog .p-dialog-footer {
+    @apply py-2;
+  }
 }

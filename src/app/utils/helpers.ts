@@ -1,7 +1,4 @@
-export interface Option<T = string, U = string> {
-  label?: T;
-  value?: U;
-}
+import {Option} from './options';
 
 export const toLookupMap = <T extends string | number, U extends string | number>(
   options: Option<T, U>[]
