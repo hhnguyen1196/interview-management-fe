@@ -1,7 +1,7 @@
 import {Component, OnInit, signal, ViewChild} from '@angular/core';
 import {Toolbar} from 'primeng/toolbar';
 import {Button} from 'primeng/button';
-import {Column, ExportColumn, Job, JobService, JobStatus, Level, Skill} from './job.service';
+import {Column, ExportColumn, Job, JobService} from './job.service';
 import {Table, TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {IconField, IconFieldModule} from 'primeng/iconfield';
@@ -20,7 +20,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {DatePickerModule} from 'primeng/datepicker';
 import {ToastModule} from 'primeng/toast';
 import {toLookupMap} from '../../utils/helpers';
-import {jobLevelOptions, jobSkillOptions, jobStatusOptions} from '../../utils/options';
+import {jobStatusOptions, levelOptions, Option, skillOptions} from '../../utils/options';
 
 @Component({
   selector: 'app-job',
@@ -71,9 +71,9 @@ export class JobComponent implements OnInit {
   job!: Job;
   submitted = false;
   jobDialog = false;
-  multiselectSkill!: Skill[];
-  levelOptions!: Level[];
-  statusOptions!: JobStatus[];
+  multiselectSkill!: Option[];
+  levelOptions!: Option[];
+  statusOptions!: Option[];
   skillMap!: Record<string, string>;
   levelMap!: Record<string, string>;
   jobMap!: Record<string, string>;
@@ -122,7 +122,7 @@ export class JobComponent implements OnInit {
         this.job = {
           ...data,
           startDate: new Date(data.startDate!),
-          endDate: new Date(data.endDate!),
+          endDate: new Date(data.endDate!)
         };
         this.jobDialog = true;
       }
@@ -229,8 +229,8 @@ export class JobComponent implements OnInit {
 
     this.exportColumns = this.cols.map((col) => ({title: col.header, dataKey: col.field}));
 
-    this.multiselectSkill = jobSkillOptions;
-    this.levelOptions = jobLevelOptions;
+    this.multiselectSkill = skillOptions;
+    this.levelOptions = levelOptions;
     this.statusOptions = jobStatusOptions;
 
     this.skillMap = toLookupMap(this.multiselectSkill);

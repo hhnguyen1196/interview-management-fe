@@ -1,1 +1,207 @@
-<p>candidate works!</p>
+<p-toolbar styleClass="mb-2">
+  <ng-template #start>
+    <p-button class="ml-4" label="Tạo công việc" icon="pi pi-plus" severity="secondary"
+              (onClick)="openCreateCandidate()"/>
+  </ng-template>
+</p-toolbar>
+
+<p-table
+  #dt
+  [value]="candidates()"
+  [rows]="size()"
+  [paginator]="true"
+  [rowHover]="true"
+  dataKey="id"
+  [totalRecords]="totalRecords()"
+  currentPageReportTemplate="Tổng số {totalRecords} bản ghi"
+  [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[10, 20]"
+  [lazy]="true"
+  (onLazyLoad)="onPageChange($event)"
+>
+  <ng-template #caption>
+    <div class="flex items-center justify-between mx-3">
+      <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách ứng viên</h5>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search"/>
+        <input pInputText type="text" name="search" [value]="search()" (keyup.enter)="onSearch($event)"
+               class="w-96" placeholder="Search..."/>
+      </p-iconfield>
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th style="min-width: 12rem">Họ tên</th>
+      <th style="min-width: 14rem">Email</th>
+      <th style="min-width: 10rem">Số điện thoại</th>
+      <th style="min-width: 14rem">Vị trí công việc</th>
+      <th style="min-width: 10rem">Người phụ trách HR</th>
+      <th style="min-width: 10rem">Trạng thái</th>
+      <th style="min-width: 10rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-candidate>
+    <tr>
+      <td>{{ candidate.fullName }}</td>
+      <td>{{ candidate.email }}</td>
+      <td>{{ candidate.phoneNumber }}</td>
+      <td>{{ positionMap[candidate.position] }}</td>
+      <td>{{ 'Nguyễn Vũ Thu Thảo' }}</td>
+      <td>
+        <p-tag [value]="statusMap[candidate.status]" [severity]="getStatusSeverity(candidate.status)"/>
+      </td>
+      <td>
+        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
+                  (click)="editCandidate(candidate.id)"/>
+        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                  (click)="deleteCandidate(candidate.id)"/>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+
+<p-dialog [(visible)]="candidateDialog" styleClass="custom-dialog" [style]="{ width: '60%' }"
+          [header]="getHeaderText()" [modal]="true" (onHide)="hideDialog()">
+  <ng-template #content>
+    <h6 class="text-lg font-semibold my-3">1. Thông tin cá nhân</h6>
+    <div class="flex flex-col gap-3">
+      <div>
+        <label for="fullName" class="block font-bold mb-3">Họ tên</label>
+        <input type="text" pInputText id="fullName" [(ngModel)]="candidate.fullName" fluid/>
+        @if (submitted && !candidate.fullName) {
+          <small class="text-red-500">Họ tên là bắt buộc.</small>
+        }
+      </div>
+
+      <div>
+        <label for="email" class="block font-bold mb-3">Email</label>
+        <input type="text" pInputText id="email" [(ngModel)]="candidate.email" fluid/>
+        @if (submitted && !candidate.email) {
+          <small class="text-red-500">Email là bắt buộc.</small>
+        }
+      </div>
+
+      <div class="flex-1">
+        <label for="dateOfBirth" class="block font-bold mb-3">Ngày sinh</label>
+        <p-datepicker
+          inputId="dateOfBirth"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          [(ngModel)]="candidate.dateOfBirth"
+          fluid
+        ></p-datepicker>
+      </div>
+
+      <div>
+        <label for="address" class="block font-bold mb-3">Địa chỉ</label>
+        <input type="text" pInputText id="address" [(ngModel)]="candidate.address" fluid/>
+      </div>
+
+      <div>
+        <label for="phoneNumber" class="block font-bold mb-3">Số điện thoại</label>
+        <input type="text" pInputText id="phoneNumber" [(ngModel)]="candidate.phoneNumber" fluid/>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-3">Giới tính</label>
+        <p-select [(ngModel)]="candidate.gender" [options]="genderOptions" optionLabel="label" optionValue="value"
+                  placeholder="Chọn giới tính" fluid/>
+        @if (submitted && !candidate.gender) {
+          <small class="text-red-500">Giới tính là bắt buộc.</small>
+        }
+      </div>
+    </div>
+
+    <h6 class="text-lg font-semibold my-3">2. Thông tin nghề nghiệp</h6>
+    <div class="flex flex-col gap-3">
+      <div>
+        <label class="block font-bold mb-3">Tải lên CV </label>
+        <p-fileupload #fu mode="advanced" [multiple]="false"
+                      chooseLabel="Chọn CV" chooseIcon="pi pi-upload" name="cv"
+                      [showUploadButton]="false" [showCancelButton]="false" accept=".pdf"
+                      [maxFileSize]="2 * 1024 * 1024" (onSelect)="onFileSelect($event)"
+                      invalidFileSizeMessageSummary="Dung lượng không hợp lệ."
+                      invalidFileSizeMessageDetail="File bạn chọn vượt quá 2MB">
+          <ng-template pTemplate="file">
+            <div class="flex items-center gap-2">
+              <span>{{ candidate.filename }}</span>
+              <p-button label="Xem" icon="pi pi-eye" text (click)="previewPdf()" class="!p-0"/>
+            </div>
+          </ng-template>
+        </p-fileupload>
+        @if (!candidate.cvAttachment && candidate.filename) {
+          <div class="flex items-center gap-2">
+            <span>{{ candidate.filename }}</span>
+            <p-button label="Xem" icon="pi pi-eye" text (click)="previewPdfFromServer()" class="!p-0"></p-button>
+          </div>
+        }
+      </div>
+      <div>
+        <label class="block font-bold mb-3">Vị trí công việc</label>
+        <p-select [(ngModel)]="candidate.position" [options]="positionOptions" optionLabel="label" optionValue="value"
+                  placeholder="Chọn Vị trí công việc" fluid/>
+        @if (submitted && !candidate.position) {
+          <small class="text-red-500">Vị trí công việc là bắt buộc.</small>
+        }
+      </div>
+      <div>
+        <label for="yearOfExperience" class="block font-bold mb-3">Số năm kinh nghiệm</label>
+        <input type="number" pInputText id="yearOfExperience" [(ngModel)]="candidate.yearOfExperience" min="0" fluid/>
+      </div>
+      <div class="w-full">
+        <label class="block font-bold mb-3">Kỹ năng</label>
+        <p-multiselect
+          class="w-full"
+          [options]="multiselectSkill"
+          [(ngModel)]="candidate.skills"
+          optionLabel="label"
+          optionValue="value"
+          display="comma"
+          [filter]="true"
+          placeholder="Chọn kỹ năng"
+          [maxSelectedLabels]="6"
+          selectedItemsLabel="{0} kỹ năng"
+        >
+          <ng-template #item let-skill>
+            <div class="flex items-center">
+              <span class="mr-2"></span>
+              <div>{{ skill.label }}</div>
+            </div>
+          </ng-template>
+        </p-multiselect>
+        @if (submitted && (!candidate.skills || candidate.skills.length === 0)) {
+          <small class="text-red-500">Kỹ năng là bắt buộc.</small>
+        }
+      </div>
+      <div>
+        <label class="block font-bold mb-3">Trình độ</label>
+        <p-select [(ngModel)]="candidate.level" [options]="levelOptions" optionLabel="label" optionValue="value"
+                  placeholder="Chọn trình độ" fluid/>
+        @if (submitted && !candidate.level) {
+          <small class="text-red-500">Trình độ là bắt buộc.</small>
+        }
+      </div>
+      @if (candidate.status) {
+        <div>
+          <label class="block font-bold mb-3">Trạng thái</label>
+          <p-select [(ngModel)]="candidate.status" [options]="statusOptions" optionLabel="label" optionValue="value"
+                    fluid/>
+        </div>
+      }
+      <div>
+        <label for="note" class="block font-bold mb-3">Ghi chú</label>
+        <textarea id="note" pTextarea [(ngModel)]="candidate.note" required rows="8" cols="20"
+                  fluid></textarea>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Đóng" icon="pi pi-times" text (click)="hideDialog()"/>
+    <p-button label="Lưu" icon="pi pi-check" (click)="saveCandidate()"/>
+  </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }"></p-confirmdialog>
+<p-toast class="" styleClass="mt-12 custom-toast"/>

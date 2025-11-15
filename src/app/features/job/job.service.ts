@@ -2,25 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {map, Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {ApiService} from '../../services/api.service';
-import {Option} from '../../utils/options';
-
-export interface Pagination {
-  page: number;
-  size: number;
-}
-
-export interface JobListRequest extends Pagination {
-  search: string;
-}
-
-export interface Skill extends Option {
-}
-
-export interface Level extends Option {
-}
-
-export interface JobStatus extends Option {
-}
+import {Pagination} from '../../shared/pagination';
 
 export interface Job {
   id?: number;
@@ -55,7 +37,7 @@ export interface ExportColumn {
 export class JobService {
   private apiService = inject(ApiService);
 
-  getJobs(data: JobListRequest): Observable<JobList> {
+  getJobs(data: Pagination): Observable<JobList> {
     const params = {
       page: data.page,
       size: data.size,

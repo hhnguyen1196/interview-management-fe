@@ -43,6 +43,28 @@ export class ApiService {
     return this.http.delete<T>(url, {headers, observe: 'response'});
   }
 
+  postFormData<T>(endpoint: string, data?: Record<string, unknown>): Observable<HttpResponse<T>> {
+    const url = `${this.url}/${endpoint}`;
+    const headers = this.getHeaders();
+    const formData = new FormData();
+    for (const key in data) {
+      const value = data[key];
+      if (value === null || value === undefined) {
+        continue;
+      }
+      if (value instanceof File) {
+        formData.append(key, value, value.name);
+      } else if (value instanceof Date) {
+        formData.append(key, String(value));
+      } else if (Array.isArray(value)) {
+        value.forEach(o => formData.append(`${key}[]`, String(o)));
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+    return this.http.post<T>(url, formData, {headers, observe: 'response'});
+  }
+
   private getHeaders(): HttpHeaders {
     return new HttpHeaders();
   }

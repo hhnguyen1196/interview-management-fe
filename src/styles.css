@@ -23,4 +23,24 @@
   .custom-dialog .p-dialog-footer {
     @apply py-2;
   }
+
+  .p-fileupload .p-fileupload-header {
+    @apply p-0;
+  }
+
+  .p-fileupload .p-fileupload-content {
+    @apply p-0 m-0 gap-0;
+  }
+
+  .p-fileupload .p-fileupload-file.ng-star-inserted {
+    @apply p-0;
+  }
+
+  .p-fileupload p-fileupload-header {
+    display: none !important;
+  }
+
+  .p-fileupload.p-fileupload-advanced {
+    @apply border-0 shadow-none;
+  }
 }

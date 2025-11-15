@@ -38,7 +38,7 @@
       <th style="min-width: 18rem">Tiêu đề</th>
       <th style="min-width: 18rem">Kỹ năng</th>
       <th style="min-width: 10rem">Trình độ</th>
-      <th style="min-width: 10rem">Ngày băt đầu</th>
+      <th style="min-width: 10rem">Ngày bắt đầu</th>
       <th style="min-width: 10rem">Ngày kết thúc</th>
       <th style="min-width: 10rem">Trạng thái</th>
       <th style="min-width: 10rem"></th>
@@ -66,7 +66,7 @@
 <p-dialog [(visible)]="jobDialog" styleClass="custom-dialog" [style]="{ width: '60%' }"
           [header]="getHeaderText()" [modal]="true" (onHide)="hideDialog()">
   <ng-template #content>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-3">
       <div>
         <label for="title" class="block font-bold my-3">Tiêu đề công việc</label>
         <input type="text" pInputText id="title" [(ngModel)]="job.title" fluid/>
@@ -115,7 +115,7 @@
         <input type="text" pInputText id="salary" [(ngModel)]="job.salary" fluid/>
       </div>
 
-      <div class="flex gap-4">
+      <div class="flex gap-3">
         <div class="flex-1">
           <label for="startDate" class="block font-bold mb-3">Ngày bắt đầu</label>
           <p-datepicker
