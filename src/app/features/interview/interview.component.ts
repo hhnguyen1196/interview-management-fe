@@ -7,7 +7,6 @@ import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {CandidateService} from '../candidate/candidate.service';
 
 @Component({
   selector: 'app-interview',
@@ -21,7 +20,7 @@ import {CandidateService} from '../candidate/candidate.service';
     TableModule
   ],
   templateUrl: './interview.component.html',
-  providers: [MessageService, CandidateService, ConfirmationService]
+  providers: [MessageService, InterviewService, ConfirmationService]
 })
 export class InterviewComponent {
 
