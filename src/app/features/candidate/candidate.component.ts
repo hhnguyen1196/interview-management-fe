@@ -132,8 +132,8 @@ export class CandidateComponent implements OnInit {
 
   hideDialog() {
     this.candidate = {};
-    this.candidateDialog = false;
     this.submitted = false;
+    this.candidateDialog = false;
   }
 
   editCandidate(id: number) {
