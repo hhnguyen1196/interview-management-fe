@@ -22,7 +22,7 @@
 >
   <ng-template #caption>
     <div class="flex items-center justify-between mx-3">
-      <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách ứng viên</h5>
+      <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách lịch phỏng vấn</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search"/>
         <input pInputText type="text" name="search" [value]="search()" (keyup.enter)="onSearch($event)"
@@ -32,30 +32,31 @@
   </ng-template>
   <ng-template #header>
     <tr>
-      <th style="min-width: 12rem">Họ tên</th>
-      <th style="min-width: 14rem">Email</th>
-      <th style="min-width: 10rem">Số điện thoại</th>
-      <th style="min-width: 14rem">Vị trí công việc</th>
-      <th style="min-width: 10rem">Người phụ trách HR</th>
+      <th style="min-width: 16rem">Tiêu đề</th>
+      <th style="min-width: 12rem">Tên ứng viên</th>
+      <th style="min-width: 12rem">Người phỏng vấn</th>
+      <th style="min-width: 14rem">Thời gian phỏng vấn</th>
+      <th style="min-width: 10rem">Kết quả</th>
       <th style="min-width: 10rem">Trạng thái</th>
       <th style="min-width: 10rem"></th>
     </tr>
   </ng-template>
-  <ng-template #body let-candidate>
+  <ng-template #body let-interview>
     <tr>
-      <td>{{ candidate.fullName }}</td>
-      <td>{{ candidate.email }}</td>
-      <td>{{ candidate.phoneNumber }}</td>
-      <td>{{ 'Account' }}</td>
-      <td>{{ 'HR' }}</td>
-      <td>
-        <!--        <p-tag [value]="statusMap[candidate.status]" [severity]="getStatusSeverity(candidate.status)"/>-->
-      </td>
+      <td>{{ interview.title }}</td>
+      <td>{{ interview.candidateName }}</td>
+      <td>{{ interview.interviewNames.join(', ') }}</td>
+      <td>{{ interview.schedule }}</td>
+      <td>{{ interview.result }}</td>
+      <td>{{ interview.status }}</td>
+      <!--      <td>-->
+      <!--        &lt;!&ndash;        <p-tag [value]="statusMap[candidate.status]" [severity]="getStatusSeverity(candidate.status)"/>&ndash;&gt;-->
+      <!--      </td>-->
       <td>
         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
-                  (click)="editInterview(candidate.id)"/>
+                  (click)="editInterview(interview.id)"/>
         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                  (click)="deleteCandidate(candidate.id)"/>
+                  (click)="deleteCandidate(interview.id)"/>
       </td>
     </tr>
   </ng-template>

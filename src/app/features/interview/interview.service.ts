@@ -6,19 +6,14 @@ import {environment} from '../../environments/environment';
 
 export interface Interview {
   id?: number;
-  fullName?: string;
-  email?: string;
-  dateOfBirth?: Date;
-  address?: string;
-  phoneNumber?: string;
-  gender?: string;
-  cvAttachment?: File;
-  filename?: string;
-  cvFilePath?: string;
-  position?: string;
-  yearOfExperience?: number;
-  skills?: string[] | null;
-  level?: string;
+  title?: string;
+  candidateId?: number;
+  candidateName?: string;
+  interviewIds?: number[];
+  interviewNames?: string[];
+  schedule?: string;
+  result?: string;
+  meetingId?: string;
   note?: string;
   status?: string;
 }

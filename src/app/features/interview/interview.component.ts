@@ -75,8 +75,7 @@ export class InterviewComponent {
     this.interviewService.getCandidateById(id).subscribe({
       next: data => {
         this.interview = {
-          ...data,
-          dateOfBirth: new Date(data.dateOfBirth!),
+          ...data
         };
         this.candidateDialog = true;
       }
