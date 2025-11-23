@@ -92,6 +92,10 @@ export class JobComponent implements OnInit {
     });
   }
 
+  displayDelete(status: string) {
+    return status === 'OPEN';
+  }
+
   getHeaderText() {
     return this.job?.id ? 'CHI TIẾT CÔNG VIỆC' : 'TẠO MỚI CÔNG VIỆC';
   }

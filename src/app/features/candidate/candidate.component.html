@@ -53,8 +53,10 @@
       <td>
         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
                   (click)="editCandidate(candidate.id)"/>
-        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                  (click)="deleteCandidate(candidate.id)"/>
+        @if (displayDelete(candidate.status)) {
+          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                    (click)="deleteCandidate(candidate.id)"/>
+        }
       </td>
     </tr>
   </ng-template>

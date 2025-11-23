@@ -123,6 +123,10 @@ export class CandidateComponent implements OnInit {
     }
   }
 
+  displayDelete(status: string) {
+    return status === 'OPEN';
+  }
+
   getHeaderText() {
     return this.candidate?.id ? 'CHI TIẾT ỨNG VIÊN' : 'TẠO MỚI ỨNG VIÊN';
   }
@@ -202,7 +206,7 @@ export class CandidateComponent implements OnInit {
             this.messageService.add({
               severity: 'info',
               icon: 'pi-check-circle',
-              summary: 'Xóa công việc thành công',
+              summary: 'Xóa ứng viên thành công',
               life: 3000
             });
           },
@@ -211,7 +215,7 @@ export class CandidateComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               icon: 'pi-times-circle',
-              summary: 'Xóa công việc thất bại',
+              summary: 'Xóa ứng viên thất bại',
               life: 3000
             });
           }

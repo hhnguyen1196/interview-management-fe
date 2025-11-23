@@ -102,18 +102,10 @@ export const statusOptions: Option[] = [
   {label: 'Hoạt động', value: 'OPEN'},
   {label: 'Đang tiến hành', value: 'IN_PROGRESS'},
   {label: 'Đã kết thúc', value: 'CLOSED'},
+  {label: 'Hoàn tất', value: 'COMPLETED'},
   {label: 'Chờ phỏng vấn', value: 'WAITING_FOR_INTERVIEW'},
-  {label: 'Đang phỏng vấn', value: 'IN_PROGRESS_INTERVIEW'},
   {label: 'Phỏng vấn bị hủy', value: 'CANCELLED_INTERVIEW'},
-  {label: 'Đậu phỏng vấn', value: 'PASSED_INTERVIEW'},
-  {label: 'Rớt phỏng vấn', value: 'FAILED_INTERVIEW'},
-  {label: 'Chờ phê duyệt', value: 'WAITING_FOR_APPROVAL'},
-  {label: 'Offer được phê duyệt', value: 'APPROVED_OFFER'},
-  {label: 'Offer bị từ chối', value: 'REJECTED_OFFER'},
-  {label: 'Chờ phản hồi', value: 'WAITING_FOR_RESPONSE'},
-  {label: 'Đã chấp nhận offer', value: 'ACCEPTED_OFFER'},
-  {label: 'Từ chối offer', value: 'DECLINED_OFFER'},
-  {label: 'Offer bị hủy', value: 'CANCELLED_OFFER'},
+  {label: 'Phỏng vấn hoàn tất', value: 'COMPLETED_INTERVIEW'},
   {label: 'Bị cấm phỏng vấn', value: 'BANNED'}
 ];
 
@@ -124,6 +116,13 @@ export const jobStatusOptions: Option[] = [
 
 export const candidateStatusOptions: Option[] = [
   {label: 'Hoạt động', value: 'OPEN'}
+]
+
+export const interviewStatusOptions: Option[] = [
+  {label: 'Chờ phỏng vấn', value: 'WAITING_FOR_INTERVIEW'},
+  {label: 'Phỏng vấn bị hủy', value: 'CANCELLED_INTERVIEW'},
+  {label: 'Phỏng vấn hoàn tất', value: 'COMPLETED_INTERVIEW'},
+  {label: 'Bị cấm phỏng vấn', value: 'BANNED'}
 ]
 
 export const genderOptions: Option[] = [

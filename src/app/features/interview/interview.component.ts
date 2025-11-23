@@ -15,7 +15,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {SelectModule} from 'primeng/select';
 import {TextareaModule} from 'primeng/textarea';
 import {ToastModule} from 'primeng/toast';
-import {Option, statusOptions} from '../../utils/options';
+import {interviewStatusOptions, Option, statusOptions} from '../../utils/options';
 import {toLookupMap} from '../../utils/helpers';
 import {Tag} from 'primeng/tag';
 import {forkJoin} from 'rxjs';
@@ -67,6 +67,10 @@ export class InterviewComponent implements OnInit {
   statusOptions!: Option[];
   statusMap!: Record<string, string>;
   interviewOptions!: InterviewOption;
+  originalInterview: { jobId: number | null; candidateId: number | null } = {
+    jobId: null,
+    candidateId: null
+  };
 
   loadData() {
     this.interviewService.getInterviews({
@@ -77,6 +81,14 @@ export class InterviewComponent implements OnInit {
       this.interviews.set(data.interviewList);
       this.totalRecords.set(data.totalElements)
     });
+  }
+
+  displayDelete(status: string) {
+    return status === 'WAITING_FOR_INTERVIEW';
+  }
+
+  isWaitingForInterview(status: string) {
+    return !status || status === 'WAITING_FOR_INTERVIEW';
   }
 
   onSearch(event: Event) {
@@ -168,6 +180,10 @@ export class InterviewComponent implements OnInit {
           fromHourLabel: fromHourDate,
           toHourLabel: toHourDate
         };
+        this.originalInterview = {
+          jobId: interview.jobId ?? null,
+          candidateId: interview.candidateId ?? null
+        };
         this.interviewOptions = options;
         this.interviewDialog = true;
       }
@@ -189,7 +205,7 @@ export class InterviewComponent implements OnInit {
             this.messageService.add({
               severity: 'info',
               icon: 'pi-check-circle',
-              summary: 'Xóa công việc thành công',
+              summary: 'Xóa lịch phỏng vấn thành công',
               life: 3000
             });
           },
@@ -198,7 +214,7 @@ export class InterviewComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               icon: 'pi-times-circle',
-              summary: 'Xóa công việc thất bại',
+              summary: 'Xóa lịch phỏng vấn thất bại',
               life: 3000
             });
           }
@@ -229,8 +245,13 @@ export class InterviewComponent implements OnInit {
     }
   }
 
+  isChanged(): boolean {
+    return this.interview.jobId !== this.originalInterview.jobId ||
+      this.interview.candidateId !== this.originalInterview.candidateId;
+  }
+
   initData() {
-    this.statusOptions = statusOptions;
+    this.statusOptions = interviewStatusOptions;
     this.statusMap = toLookupMap(this.statusOptions);
   }
 }
