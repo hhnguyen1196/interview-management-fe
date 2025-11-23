@@ -1,10 +1,9 @@
 <p-toolbar styleClass="mb-2">
   <ng-template #start>
-    <p-button class="ml-4" label="Tạo công việc" icon="pi pi-plus" severity="secondary"
+    <p-button class="ml-4" label="Tạo lịch phỏng vấn" icon="pi pi-plus" severity="secondary"
               (onClick)="openCreateInterview()"/>
   </ng-template>
 </p-toolbar>
-
 
 <p-table
   #dt
@@ -25,19 +24,19 @@
       <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách lịch phỏng vấn</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search"/>
-        <input pInputText type="text" name="search" [value]="search()" (keyup.enter)="onSearch($event)"
+        <input pInputText type="text" name="search" [value]="search" (keyup.enter)="onSearch($event)"
                class="w-96" placeholder="Search..."/>
       </p-iconfield>
     </div>
   </ng-template>
   <ng-template #header>
     <tr>
-      <th style="min-width: 16rem">Tiêu đề</th>
-      <th style="min-width: 12rem">Tên ứng viên</th>
-      <th style="min-width: 12rem">Người phỏng vấn</th>
+      <th style="min-width: 18rem">Tiêu đề</th>
+      <th style="min-width: 14rem">Tên ứng viên</th>
+      <th style="min-width: 14rem">Người phỏng vấn</th>
+      <th style="min-width: 14rem">Người tuyển dụng</th>
       <th style="min-width: 14rem">Thời gian phỏng vấn</th>
-      <th style="min-width: 10rem">Kết quả</th>
-      <th style="min-width: 10rem">Trạng thái</th>
+      <th style="min-width: 12rem">Trạng thái</th>
       <th style="min-width: 10rem"></th>
     </tr>
   </ng-template>
@@ -45,13 +44,12 @@
     <tr>
       <td>{{ interview.title }}</td>
       <td>{{ interview.candidateName }}</td>
-      <td>{{ interview.interviewNames.join(', ') }}</td>
+      <td>{{ interview.interviewerName }}</td>
+      <td>{{ interview.recruiterName }}</td>
       <td>{{ interview.schedule }}</td>
-      <td>{{ interview.result }}</td>
-      <td>{{ interview.status }}</td>
-      <!--      <td>-->
-      <!--        &lt;!&ndash;        <p-tag [value]="statusMap[candidate.status]" [severity]="getStatusSeverity(candidate.status)"/>&ndash;&gt;-->
-      <!--      </td>-->
+      <td>
+        <p-tag [value]="statusMap[interview.status]" [severity]="getStatusSeverity(interview.status)"/>
+      </td>
       <td>
         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
                   (click)="editInterview(interview.id)"/>
@@ -61,3 +59,91 @@
     </tr>
   </ng-template>
 </p-table>
+
+<p-dialog [(visible)]="interviewDialog" styleClass="custom-dialog" [style]="{ width: '60%' }"
+          [header]="getHeaderText()" [modal]="true" (onHide)="hideDialog()">
+  <ng-template #content>
+    <div class="flex flex-col gap-3">
+      <div>
+        <label class="block font-bold mb-3">Tiêu đề công việc</label>
+        <p-select [(ngModel)]="interview.jobId" [options]="interviewOptions.jobList"
+                  optionLabel="title" optionValue="id" placeholder="Chọn tiêu đề công việc" fluid/>
+        @if (submitted && !interview.jobId) {
+          <small class="text-red-500">Tiêu đề công việc là bắt buộc.</small>
+        }
+      </div>
+
+      <div>
+        <label class="block font-bold mb-3">Ứng viên</label>
+        <p-select [(ngModel)]="interview.candidateId" [options]="interviewOptions.candidateList"
+                  optionLabel="name" optionValue="id" placeholder="Chọn ứng viên" fluid/>
+        @if (submitted && !interview.candidateId) {
+          <small class="text-red-500">Ứng viên là bắt buộc.</small>
+        }
+      </div>
+
+      <div>
+        <label class="block font-bold mb-3">Người phỏng vấn</label>
+        <p-select [(ngModel)]="interview.interviewerId" [options]="interviewOptions.interviewerList"
+                  optionLabel="name" optionValue="id" placeholder="Chọn người phỏng vấn" fluid/>
+        @if (submitted && !interview.interviewerId) {
+          <small class="text-red-500">Người phỏng vấn là bắt buộc.</small>
+        }
+      </div>
+
+      <div>
+        <label class="block font-bold mb-3">Người tuyển dụng</label>
+        <p-select [(ngModel)]="interview.recruiterId" [options]="interviewOptions.recruiterList"
+                  optionLabel="name" optionValue="id" placeholder="Chọn người tuyển dụng" fluid/>
+        @if (submitted && !interview.recruiterId) {
+          <small class="text-red-500">Người phỏng vấn là bắt buộc.</small>
+        }
+      </div>
+
+      <div class="flex-1">
+        <label for="scheduleDate" class="block font-bold mb-3">Lịch hẹn</label>
+        <p-datepicker
+          inputId="scheduleDate"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          [(ngModel)]="interview.scheduleDate"
+          fluid
+        ></p-datepicker>
+        @if (submitted && !interview.scheduleDate) {
+          <small class="text-red-500">Lịch hẹn là bắt buộc.</small>
+        }
+      </div>
+
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <label for="fromHour" class="block font-bold mb-3">Từ</label>
+          <p-datepicker inputId="fromHour" [(ngModel)]="interview.fromHourLabel" [timeOnly]="true" fluid></p-datepicker>
+        </div>
+
+        <div class="flex-1">
+          <label for="toHour" class="block font-bold mb-3">Đến</label>
+          <p-datepicker inputId="toHour" [(ngModel)]="interview.toHourLabel" [timeOnly]="true" fluid></p-datepicker>
+        </div>
+      </div>
+
+      <div>
+        <label for="meetingId" class="block font-bold mb-3">Id của cuộc họp</label>
+        <input type="text" pInputText id="meetingId" [(ngModel)]="interview.meetingId" fluid/>
+      </div>
+      <div>
+        <label for="description" class="block font-bold mb-3">Ghi chú</label>
+        <textarea id="description" pTextarea [(ngModel)]="interview.notes" required rows="8" cols="20"
+                  fluid></textarea>
+      </div>
+
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Đóng" icon="pi pi-times" text (click)="hideDialog()"/>
+    <p-button label="Lưu" icon="pi pi-check" (click)="saveInterview()"/>
+  </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }"></p-confirmdialog>
+<p-toast class="" styleClass="mt-12 custom-toast"/>

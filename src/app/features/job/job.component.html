@@ -28,7 +28,7 @@
       <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách công việc</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search"/>
-        <input pInputText type="text" name="search" [value]="search()" (keyup.enter)="onSearch($event)"
+        <input pInputText type="text" name="search" [value]="search" (keyup.enter)="onSearch($event)"
                class="w-96" placeholder="Search..."/>
       </p-iconfield>
     </div>
@@ -52,7 +52,7 @@
       <td>{{ job.startDate | date:'dd/MM/yyyy' }}</td>
       <td>{{ job.endDate | date:'dd/MM/yyyy' }}</td>
       <td>
-        <p-tag [value]="jobMap[job.status]" [severity]="getStatusSeverity(job.status)"/>
+        <p-tag [value]="statusMap[job.status]" [severity]="getStatusSeverity(job.status)"/>
       </td>
       <td>
         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editJob(job.id)"/>
@@ -156,7 +156,8 @@
       @if (job.status) {
         <div>
           <label class="block font-bold mb-3">Trạng thái</label>
-          <p-select [(ngModel)]="job.status" [options]="statusOptions" optionLabel="label" optionValue="value" fluid/>
+          <p-select [(ngModel)]="job.status" [options]="existStatus ? jobStatusOptions : statusOptions"
+                    [disabled]="!existStatus" optionLabel="label" optionValue="value" fluid/>
         </div>
       }
       <div>

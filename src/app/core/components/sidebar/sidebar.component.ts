@@ -14,7 +14,7 @@ export class SidebarComponent {
   menuItem: MenuItem[] = [
     {
       label: 'Trang chủ',
-      icon: 'pi pi-fw pi-home',
+      icon: 'pi pi-home',
       routerLink: ''
     },
     {

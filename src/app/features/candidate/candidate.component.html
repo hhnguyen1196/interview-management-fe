@@ -1,6 +1,6 @@
 <p-toolbar styleClass="mb-2">
   <ng-template #start>
-    <p-button class="ml-4" label="Tạo công việc" icon="pi pi-plus" severity="secondary"
+    <p-button class="ml-4" label="Tạo ứng viên" icon="pi pi-plus" severity="secondary"
               (onClick)="openCreateCandidate()"/>
   </ng-template>
 </p-toolbar>
@@ -24,7 +24,7 @@
       <h5 class="font-semibold text-gray-900 text-3xl uppercase">Danh sách ứng viên</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search"/>
-        <input pInputText type="text" name="search" [value]="search()" (keyup.enter)="onSearch($event)"
+        <input pInputText type="text" name="search" [value]="search" (keyup.enter)="onSearch($event)"
                class="w-96" placeholder="Search..."/>
       </p-iconfield>
     </div>
@@ -35,7 +35,7 @@
       <th style="min-width: 14rem">Email</th>
       <th style="min-width: 10rem">Số điện thoại</th>
       <th style="min-width: 14rem">Vị trí công việc</th>
-      <th style="min-width: 10rem">Người phụ trách HR</th>
+      <th style="min-width: 10rem">Trình độ</th>
       <th style="min-width: 10rem">Trạng thái</th>
       <th style="min-width: 10rem"></th>
     </tr>
@@ -46,7 +46,7 @@
       <td>{{ candidate.email }}</td>
       <td>{{ candidate.phoneNumber }}</td>
       <td>{{ positionMap[candidate.position] }}</td>
-      <td>{{ 'HR' }}</td>
+      <td>{{ levelMap[candidate.level] }}</td>
       <td>
         <p-tag [value]="statusMap[candidate.status]" [severity]="getStatusSeverity(candidate.status)"/>
       </td>
@@ -185,8 +185,10 @@
       @if (candidate.status) {
         <div>
           <label class="block font-bold mb-3">Trạng thái</label>
-          <p-select [(ngModel)]="candidate.status" [options]="statusOptions" optionLabel="label" optionValue="value"
-                    fluid/>
+          <p-select [(ngModel)]="candidate.status" [options]="existStatus ? candidateStatusOptions : statusOptions"
+                    [disabled]="!existStatus"
+                    optionLabel="label"
+                    optionValue="value" fluid/>
         </div>
       }
       <div>

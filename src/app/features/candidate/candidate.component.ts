@@ -14,7 +14,8 @@ import {
   levelOptions,
   Option,
   positionOptions,
-  skillOptions
+  skillOptions,
+  statusOptions
 } from '../../utils/options';
 import {toLookupMap} from '../../utils/helpers';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
@@ -70,11 +71,13 @@ export class CandidateComponent implements OnInit {
   totalRecords = signal<number>(0);
   page = signal<number>(0);
   size = signal<number>(10);
-  search = signal<string>('');
+  search = '';
   candidate!: Candidate;
   submitted = false;
   candidateDialog = false;
+  existStatus = true;
   statusOptions!: Option[];
+  candidateStatusOptions!: Option[];
   positionOptions!: Option[];
   genderOptions!: Option[];
   levelOptions!: Option[];
@@ -89,7 +92,7 @@ export class CandidateComponent implements OnInit {
     this.candidateService.getCandidates({
       page: this.page(),
       size: this.size(),
-      search: this.search(),
+      search: this.search,
     }).subscribe(data => {
       this.candidates.set(data.candidateList);
       this.totalRecords.set(data.totalElements)
@@ -97,7 +100,7 @@ export class CandidateComponent implements OnInit {
   }
 
   onSearch(event: Event) {
-    this.search.set((event.target as HTMLInputElement).value);
+    this.search= (event.target as HTMLInputElement).value;
     this.loadData();
   }
 
@@ -128,6 +131,7 @@ export class CandidateComponent implements OnInit {
     this.candidate = {};
     this.submitted = false;
     this.candidateDialog = true;
+    this.existStatus = true;
   }
 
   hideDialog() {
@@ -143,6 +147,7 @@ export class CandidateComponent implements OnInit {
           ...data,
           dateOfBirth: new Date(data.dateOfBirth!),
         };
+        this.existStatus = this.candidateStatusOptions.some(o => o.value === data.status);
         this.candidateDialog = true;
       }
     })
@@ -165,6 +170,7 @@ export class CandidateComponent implements OnInit {
             summary: successMessage,
             life: 3000
           });
+          this.search = '';
           this.loadData();
         },
         error: err => {
@@ -191,6 +197,7 @@ export class CandidateComponent implements OnInit {
       accept: () => {
         this.candidateService.deleteCandidate(id).subscribe({
           next: () => {
+            this.search = '';
             this.loadData();
             this.messageService.add({
               severity: 'info',
@@ -236,7 +243,8 @@ export class CandidateComponent implements OnInit {
 
   initData() {
     this.positionOptions = positionOptions;
-    this.statusOptions = candidateStatusOptions;
+    this.statusOptions = statusOptions;
+    this.candidateStatusOptions = candidateStatusOptions;
     this.genderOptions = genderOptions;
     this.levelOptions = levelOptions;
     this.multiselectSkill = skillOptions;

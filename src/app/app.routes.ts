@@ -8,6 +8,9 @@ import {CandidateComponent} from './features/candidate/candidate.component';
 import {JobComponent} from './features/job/job.component';
 import {InterviewComponent} from './features/interview/interview.component';
 import {OfferComponent} from './features/offer/offer.component';
+import {ForbiddenComponent} from './features/auth/forbidden/forbidden.component';
+import {NotFoundComponent} from './features/auth/not-found/not-found.component';
+import {ErrorComponent} from './features/auth/error/error.component';
 
 export const routes: Routes = [
   {
@@ -24,6 +27,10 @@ export const routes: Routes = [
       {path: 'job', component: JobComponent},
       {path: 'interview', component: InterviewComponent},
       {path: 'offer', component: OfferComponent},
+      {path: 'forbidden', component: ForbiddenComponent},
+      {path: 'not-found', component: NotFoundComponent},
+      {path: 'error', component: ErrorComponent}
     ]
   },
+  {path: '**', redirectTo: 'not-found'}
 ];

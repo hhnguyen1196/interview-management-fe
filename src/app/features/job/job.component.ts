@@ -1,11 +1,11 @@
 import {Component, OnInit, signal, ViewChild} from '@angular/core';
-import {Toolbar} from 'primeng/toolbar';
-import {Button} from 'primeng/button';
+import {ToolbarModule} from 'primeng/toolbar';
+import {ButtonModule} from 'primeng/button';
 import {Column, ExportColumn, Job, JobService} from './job.service';
 import {Table, TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {IconField, IconFieldModule} from 'primeng/iconfield';
-import {InputIcon, InputIconModule} from 'primeng/inputicon';
+import {IconFieldModule} from 'primeng/iconfield';
+import {InputIconModule} from 'primeng/inputicon';
 import {CommonModule} from '@angular/common';
 import {TagModule} from 'primeng/tag';
 import {InputTextModule} from 'primeng/inputtext';
@@ -20,17 +20,15 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {DatePickerModule} from 'primeng/datepicker';
 import {ToastModule} from 'primeng/toast';
 import {toLookupMap} from '../../utils/helpers';
-import {jobStatusOptions, levelOptions, Option, skillOptions} from '../../utils/options';
+import {jobStatusOptions, levelOptions, Option, skillOptions, statusOptions} from '../../utils/options';
 
 @Component({
   selector: 'app-job',
   standalone: true,
   imports: [
-    Toolbar,
-    Button,
+    ToolbarModule,
+    ButtonModule,
     TableModule,
-    IconField,
-    InputIcon,
     CommonModule,
     TagModule,
     InputTextModule,
@@ -67,16 +65,19 @@ export class JobComponent implements OnInit {
   totalRecords = signal<number>(0);
   page = signal<number>(0);
   size = signal<number>(10);
-  search = signal<string>('');
+  search = '';
   job!: Job;
   submitted = false;
   jobDialog = false;
+  existStatus = true;
   multiselectSkill!: Option[];
   levelOptions!: Option[];
+  jobStatusOptions!: Option[];
   statusOptions!: Option[];
   skillMap!: Record<string, string>;
   levelMap!: Record<string, string>;
-  jobMap!: Record<string, string>;
+  statusMap!: Record<string, string>;
+  jobStatusMap!: Record<string, string>;
   cols!: Column[];
   exportColumns!: ExportColumn[];
 
@@ -84,7 +85,7 @@ export class JobComponent implements OnInit {
     this.jobService.getJobs({
       page: this.page(),
       size: this.size(),
-      search: this.search(),
+      search: this.search,
     }).subscribe(data => {
       this.jobs.set(data.jobList);
       this.totalRecords.set(data.totalElements)
@@ -96,11 +97,12 @@ export class JobComponent implements OnInit {
   }
 
   onSearch(event: Event) {
-    this.search.set((event.target as HTMLInputElement).value);
+    this.search = (event.target as HTMLInputElement).value;
     this.loadData();
   }
 
   openCreateJob() {
+    this.existStatus = true;
     this.job = {};
     this.submitted = false;
     this.jobDialog = true;
@@ -124,6 +126,7 @@ export class JobComponent implements OnInit {
           startDate: new Date(data.startDate!),
           endDate: new Date(data.endDate!)
         };
+        this.existStatus = this.jobStatusOptions.some(o => o.value === data.status);
         this.jobDialog = true;
       }
     })
@@ -146,6 +149,7 @@ export class JobComponent implements OnInit {
             summary: successMessage,
             life: 3000
           });
+          this.search = '';
           this.loadData();
         },
         error: err => {
@@ -172,6 +176,7 @@ export class JobComponent implements OnInit {
       accept: () => {
         this.jobService.deleteJob(id).subscribe({
           next: () => {
+            this.search = '';
             this.loadData();
             this.messageService.add({
               severity: 'info',
@@ -231,10 +236,12 @@ export class JobComponent implements OnInit {
 
     this.multiselectSkill = skillOptions;
     this.levelOptions = levelOptions;
-    this.statusOptions = jobStatusOptions;
+    this.statusOptions = statusOptions;
+    this.jobStatusOptions = jobStatusOptions;
 
     this.skillMap = toLookupMap(this.multiselectSkill);
     this.levelMap = toLookupMap(this.levelOptions);
-    this.jobMap = toLookupMap(this.statusOptions);
+    this.statusMap = toLookupMap(this.statusOptions);
+    this.jobStatusMap = toLookupMap(this.jobStatusOptions);
   }
 }

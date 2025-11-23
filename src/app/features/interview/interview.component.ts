@@ -1,28 +1,49 @@
-import {Component, signal} from '@angular/core';
-import {Button} from 'primeng/button';
-import {Toolbar} from 'primeng/toolbar';
-import {Interview, InterviewService} from './interview.service';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputText} from 'primeng/inputtext';
+import {Component, OnInit, signal} from '@angular/core';
+import {ButtonModule} from 'primeng/button';
+import {ToolbarModule} from 'primeng/toolbar';
+import {Interview, InterviewOption, InterviewService} from './interview.service';
+import {IconFieldModule} from 'primeng/iconfield';
+import {InputIconModule} from 'primeng/inputicon';
+import {InputTextModule} from 'primeng/inputtext';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ConfirmationService, MessageService} from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {DatePickerModule} from 'primeng/datepicker';
+import {DialogModule} from 'primeng/dialog';
+import {FormsModule} from '@angular/forms';
+import {MultiSelectModule} from 'primeng/multiselect';
+import {SelectModule} from 'primeng/select';
+import {TextareaModule} from 'primeng/textarea';
+import {ToastModule} from 'primeng/toast';
+import {Option, statusOptions} from '../../utils/options';
+import {toLookupMap} from '../../utils/helpers';
+import {Tag} from 'primeng/tag';
+import {forkJoin} from 'rxjs';
 
 @Component({
   selector: 'app-interview',
   standalone: true,
   imports: [
-    Button,
-    Toolbar,
-    IconField,
-    InputIcon,
-    InputText,
-    TableModule
+    ButtonModule,
+    ToolbarModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    TableModule,
+    ConfirmDialogModule,
+    DatePickerModule,
+    DialogModule,
+    FormsModule,
+    MultiSelectModule,
+    SelectModule,
+    TextareaModule,
+    ToastModule,
+    Tag
   ],
   templateUrl: './interview.component.html',
   providers: [MessageService, InterviewService, ConfirmationService]
 })
-export class InterviewComponent {
+export class InterviewComponent implements OnInit {
 
   constructor(
     private interviewService: InterviewService,
@@ -31,35 +52,47 @@ export class InterviewComponent {
   ) {
   }
 
+  ngOnInit(): void {
+    this.initData();
+  }
+
   interviews = signal<Interview[]>([]);
   totalRecords = signal<number>(0);
   page = signal<number>(0);
   size = signal<number>(10);
-  search = signal<string>('');
+  search = '';
   interview!: Interview;
   submitted = false;
-  candidateDialog = false;
+  interviewDialog = false;
+  statusOptions!: Option[];
+  statusMap!: Record<string, string>;
+  interviewOptions!: InterviewOption;
 
   loadData() {
-    // this.candidateService.getCandidates({
-    //   page: this.page(),
-    //   size: this.size(),
-    //   search: this.search(),
-    // }).subscribe(data => {
-    //   this.candidates.set(data.candidateList);
-    //   this.totalRecords.set(data.totalElements)
-    // });
+    this.interviewService.getInterviews({
+      page: this.page(),
+      size: this.size(),
+      search: this.search,
+    }).subscribe(data => {
+      this.interviews.set(data.interviewList);
+      this.totalRecords.set(data.totalElements)
+    });
   }
 
   onSearch(event: Event) {
-    this.search.set((event.target as HTMLInputElement).value);
+    this.search = (event.target as HTMLInputElement).value;
     this.loadData();
   }
 
   openCreateInterview() {
     this.interview = {};
     this.submitted = false;
-    this.candidateDialog = true;
+    this.interviewService.getInterviewOptions().subscribe({
+      next: data => {
+        this.interviewOptions = data;
+        this.interviewDialog = true;
+      }
+    });
   }
 
   onPageChange(event: TableLazyLoadEvent) {
@@ -71,15 +104,74 @@ export class InterviewComponent {
     this.loadData();
   }
 
-  editInterview(id: number) {
-    this.interviewService.getCandidateById(id).subscribe({
-      next: data => {
-        this.interview = {
-          ...data
-        };
-        this.candidateDialog = true;
+  saveInterview() {
+    this.submitted = true;
+    if (!(this.interview.jobId && this.interview.candidateId && this.interview.interviewerId
+      && this.interview.recruiterId && this.interview.scheduleDate)) {
+      return;
+    }
+    const isCreated = !this.interview.id
+    const successMessage = isCreated ? 'Tạo lịch phỏng vấn thành công' : 'Cập nhật lịch phỏng vấn thành công';
+    const errorMessage = isCreated ? 'Tạo lịch phỏng vấn thất bại' : 'Cập nhật lịch phỏng vấn thất bại';
+
+    const payload: Interview = {
+      ...this.interview,
+      fromHour: this.interview.fromHourLabel
+        ? this.interview.fromHourLabel.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', hour12: false})
+        : undefined,
+      toHour: this.interview.toHourLabel
+        ? this.interview.toHourLabel.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', hour12: false})
+        : undefined,
+    };
+
+    this.interviewService.saveInterview(payload).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'info',
+            icon: 'pi-check-circle',
+            summary: successMessage,
+            life: 3000
+          });
+          this.search = ''
+          this.loadData();
+        },
+        error: err => {
+          console.log(err);
+          this.messageService.add({
+            severity: 'error',
+            icon: 'pi-times-circle',
+            summary: errorMessage,
+            life: 3000
+          });
+        }
       }
-    })
+    )
+    this.interviewDialog = false;
+    this.interview = {};
+  }
+
+  editInterview(id: number) {
+    forkJoin({
+      interview: this.interviewService.getInterviewById(id),
+      options: this.interviewService.getInterviewOptions(id)
+    }).subscribe({
+      next: ({interview, options}) => {
+        const [h1, m1] = interview.fromHour!.split(":").map(Number);
+        const [h2, m2] = interview.toHour!.split(":").map(Number);
+        const fromHourDate = new Date();
+        fromHourDate.setHours(h1, m1, 0, 0);
+        const toHourDate = new Date();
+        toHourDate.setHours(h2, m2, 0, 0);
+        this.interview = {
+          ...interview,
+          scheduleDate: new Date(interview.scheduleDate!),
+          fromHourLabel: fromHourDate,
+          toHourLabel: toHourDate
+        };
+        this.interviewOptions = options;
+        this.interviewDialog = true;
+      }
+    });
   }
 
 
@@ -92,6 +184,7 @@ export class InterviewComponent {
       accept: () => {
         this.interviewService.deleteCandidate(id).subscribe({
           next: () => {
+            this.search = ''
             this.loadData();
             this.messageService.add({
               severity: 'info',
@@ -115,4 +208,29 @@ export class InterviewComponent {
     this.interview = {};
   }
 
+  getHeaderText() {
+    return this.interview?.id ? 'CHI TIẾT LỊCH PHỎNG VẤN' : 'TẠO MỚI LỊCH PHỎNG VẤN';
+  }
+
+  hideDialog() {
+    this.interview = {};
+    this.interviewDialog = false;
+    this.submitted = false;
+  }
+
+  getStatusSeverity(status: string) {
+    switch (status) {
+      case 'OPEN':
+        return 'success';
+      case 'CLOSED':
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
+
+  initData() {
+    this.statusOptions = statusOptions;
+    this.statusMap = toLookupMap(this.statusOptions);
+  }
 }

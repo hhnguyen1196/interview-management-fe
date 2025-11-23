@@ -98,15 +98,12 @@ export const positionOptions: Option[] = [
   {label: 'Software Architect', value: 'SOFTWARE_ARCHITECT'}
 ];
 
-export const jobStatusOptions: Option[] = [
+export const statusOptions: Option[] = [
   {label: 'Hoạt động', value: 'OPEN'},
-  {label: 'Đã kết thúc', value: 'CLOSED'}
-];
-
-export const candidateStatusOptions: Option[] = [
-  {label: 'Hoạt động', value: 'OPEN'},
+  {label: 'Đang tiến hành', value: 'IN_PROGRESS'},
+  {label: 'Đã kết thúc', value: 'CLOSED'},
   {label: 'Chờ phỏng vấn', value: 'WAITING_FOR_INTERVIEW'},
-  {label: 'Đang phỏng vấn', value: 'IN_PROGRESS'},
+  {label: 'Đang phỏng vấn', value: 'IN_PROGRESS_INTERVIEW'},
   {label: 'Phỏng vấn bị hủy', value: 'CANCELLED_INTERVIEW'},
   {label: 'Đậu phỏng vấn', value: 'PASSED_INTERVIEW'},
   {label: 'Rớt phỏng vấn', value: 'FAILED_INTERVIEW'},
@@ -118,6 +115,15 @@ export const candidateStatusOptions: Option[] = [
   {label: 'Từ chối offer', value: 'DECLINED_OFFER'},
   {label: 'Offer bị hủy', value: 'CANCELLED_OFFER'},
   {label: 'Bị cấm phỏng vấn', value: 'BANNED'}
+];
+
+export const jobStatusOptions: Option[] = [
+  {label: 'Hoạt động', value: 'OPEN'},
+  {label: 'Đã kết thúc', value: 'CLOSED'}
+];
+
+export const candidateStatusOptions: Option[] = [
+  {label: 'Hoạt động', value: 'OPEN'}
 ]
 
 export const genderOptions: Option[] = [
