@@ -24,12 +24,11 @@ export class AuthInterceptor implements HttpInterceptor {
           case 404:
             this.router.navigateByUrl('/not-found').then();
             break;
-          case 400:
-          case 500:
-            this.router.navigateByUrl('/error').then();
-            break;
           case 403:
             this.router.navigateByUrl('/forbidden').then();
+            break;
+          case 500:
+            this.router.navigateByUrl('/error').then();
             break;
         }
       }
