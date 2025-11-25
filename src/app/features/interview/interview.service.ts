@@ -6,23 +6,16 @@ import {environment} from '../../environments/environment';
 
 export interface Interview {
   id?: number;
-  title?: string;
   jobId?: number;
   candidateId?: number;
-  candidateName?: string;
   interviewerId?: number;
-  interviewerName?: string;
   recruiterId?: number;
-  recruiterName?: string;
-  schedule?: string;
   scheduleDate?: Date;
   fromHour?: string;
   fromHourLabel?: Date;
   toHour?: string;
   toHourLabel?: Date;
-  location?: string;
   meetingId?: string;
-  note?: string;
   status?: string;
   notes?: string;
 }

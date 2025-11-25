@@ -33,9 +33,9 @@ export class SidebarComponent {
       routerLink: '/interview'
     },
     {
-      label: 'Đãi ngộ',
-      icon: 'pi pi-file',
-      routerLink: '/offer'
+      label: 'Quản lý tài khoản',
+      icon: 'pi pi-user',
+      routerLink: '/account'
     },
   ];
 }

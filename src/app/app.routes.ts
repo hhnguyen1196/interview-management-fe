@@ -7,10 +7,10 @@ import {HomeComponent} from './features/home/home.component';
 import {CandidateComponent} from './features/candidate/candidate.component';
 import {JobComponent} from './features/job/job.component';
 import {InterviewComponent} from './features/interview/interview.component';
-import {OfferComponent} from './features/offer/offer.component';
 import {ForbiddenComponent} from './features/auth/forbidden/forbidden.component';
 import {NotFoundComponent} from './features/auth/not-found/not-found.component';
 import {ErrorComponent} from './features/auth/error/error.component';
+import {AccountComponent} from './features/account/account.component';
 
 export const routes: Routes = [
   {
@@ -26,7 +26,7 @@ export const routes: Routes = [
       {path: 'candidate', component: CandidateComponent},
       {path: 'job', component: JobComponent},
       {path: 'interview', component: InterviewComponent},
-      {path: 'offer', component: OfferComponent},
+      {path: 'account', component: AccountComponent},
       {path: 'forbidden', component: ForbiddenComponent},
       {path: 'not-found', component: NotFoundComponent},
       {path: 'error', component: ErrorComponent}

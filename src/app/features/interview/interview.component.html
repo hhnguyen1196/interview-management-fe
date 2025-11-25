@@ -69,7 +69,7 @@
       <div>
         <label class="block font-bold mb-3">Tiêu đề công việc</label>
         <p-select [(ngModel)]="interview.jobId" [options]="interviewOptions.jobList"
-                  [disabled]="!isWaitingForInterview(interview.status!)"
+                  [disabled]="!isWaitingForInterview(interview.status!)" emptyMessage="Không tồn tại công việc"
                   optionLabel="title" optionValue="id" placeholder="Chọn tiêu đề công việc" fluid/>
         @if (submitted && !interview.jobId) {
           <small class="text-red-500">Tiêu đề công việc là bắt buộc.</small>
@@ -79,7 +79,7 @@
       <div>
         <label class="block font-bold mb-3">Ứng viên</label>
         <p-select [(ngModel)]="interview.candidateId" [options]="interviewOptions.candidateList"
-                  [disabled]="!isWaitingForInterview(interview.status!)"
+                  [disabled]="!isWaitingForInterview(interview.status!)" emptyMessage="Không tồn tại ứng viên"
                   optionLabel="name" optionValue="id" placeholder="Chọn ứng viên" fluid/>
         @if (submitted && !interview.candidateId) {
           <small class="text-red-500">Ứng viên là bắt buộc.</small>
@@ -89,6 +89,7 @@
       <div>
         <label class="block font-bold mb-3">Người phỏng vấn</label>
         <p-select [(ngModel)]="interview.interviewerId" [options]="interviewOptions.interviewerList"
+                  emptyMessage="Không tồn tại người phỏng vấn"
                   optionLabel="name" optionValue="id" placeholder="Chọn người phỏng vấn" fluid/>
         @if (submitted && !interview.interviewerId) {
           <small class="text-red-500">Người phỏng vấn là bắt buộc.</small>
@@ -98,6 +99,7 @@
       <div>
         <label class="block font-bold mb-3">Người tuyển dụng</label>
         <p-select [(ngModel)]="interview.recruiterId" [options]="interviewOptions.recruiterList"
+                  emptyMessage="Không tồn tại người tuyển dụng"
                   optionLabel="name" optionValue="id" placeholder="Chọn người tuyển dụng" fluid/>
         @if (submitted && !interview.recruiterId) {
           <small class="text-red-500">Người phỏng vấn là bắt buộc.</small>

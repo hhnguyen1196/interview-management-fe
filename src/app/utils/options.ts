@@ -129,3 +129,14 @@ export const genderOptions: Option[] = [
   {label: 'Nam', value: 'MALE'},
   {label: 'Nữ', value: 'FEMALE'}
 ];
+
+export const roleOptions: Option[] = [
+  {label: 'Quản trị viên', value: 'ADMIN'},
+  {label: 'Người tuyển dụng', value: 'RECRUITER'},
+  {label: 'Người phỏng vấn', value: 'INTERVIEWER'}
+];
+
+export const activeOptions: Option<string, boolean>[] = [
+  {label: 'Hoạt động', value: true},
+  {label: 'Không hoạt động', value: false}
+];

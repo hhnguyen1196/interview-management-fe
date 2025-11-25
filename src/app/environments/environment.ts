@@ -5,6 +5,7 @@ export const environment = {
     jobs: 'jobs',
     candidates: 'candidates',
     interviews: 'interviews',
+    accounts: 'accounts',
     download: 'api/download?filename='
   }
 };
