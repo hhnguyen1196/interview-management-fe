@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
 import {MenuModule} from 'primeng/menu';
 import {AvatarModule} from 'primeng/avatar';
 import {ButtonModule} from 'primeng/button';
@@ -21,12 +21,13 @@ import {AccountPanel, AccountPanelService} from './account-panel.service';
 export class AccountPanelComponent implements OnInit {
   private localstorageService = inject(StorageService);
   private router = inject(Router);
+  @Output() changePassword = new EventEmitter<void>();
   menuItems: MenuItem[] = [
     {
       label: 'Đổi mật khẩu',
       icon: 'pi pi-spinner',
       command: () => {
-        console.log('Switch account');
+        this.changePassword.emit();
       }
     },
     {
@@ -44,8 +45,8 @@ export class AccountPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
-     this.accountPanelService.getInfoAccountById().subscribe(data => {
-       this.accountPanel = data;
+    this.accountPanelService.getInfoAccountById().subscribe(data => {
+      this.accountPanel = data;
     });
   }
 

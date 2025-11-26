@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {MenuItemComponent} from './menu-item/menu-item.component';
 import {AccountPanelComponent} from '../../../features/account-panel/account-panel.component';
@@ -13,6 +13,7 @@ import {AccountPanelComponent} from '../../../features/account-panel/account-pan
   templateUrl: './sidebar.component.html'
 })
 export class SidebarComponent {
+  @Output() changePassword = new EventEmitter<void>();
   menuItem: MenuItem[] = [
     {
       label: 'Trang chủ',
@@ -40,4 +41,8 @@ export class SidebarComponent {
       routerLink: '/account'
     },
   ];
+
+  onChangePassword() {
+    this.changePassword.emit();
+  }
 }
