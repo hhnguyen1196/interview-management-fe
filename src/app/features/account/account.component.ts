@@ -107,23 +107,31 @@ export class AccountComponent implements OnInit {
       next: data => {
         this.account = {
           ...data,
-          dateOfBirth: new Date(data.dateOfBirth!)
+          dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth!) : undefined,
         };
         this.accountDialog = true;
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          icon: 'pi-times-circle',
+          summary: err.error.message,
+          life: 3000
+        });
       }
     })
   }
 
   saveAccount() {
     this.submitted = true;
-    if (!(this.account.username?.trim() && this.account.password?.trim() && this.account.role
+    if (!(this.account.username?.trim()
+      && (!this.account.id ? this.account.password?.trim() : true)
+      && this.account.role
       && this.account.email?.trim())) {
-      console.log(this.account);
       return;
     }
     const isCreated = !this.account.id
     const successMessage = isCreated ? 'Tạo tài khoản thành công' : 'Cập nhật tài khoản thành công';
-    const errorMessage = isCreated ? 'Tạo tài khoản thất bại' : 'Cập nhật tài khoản thất bại';
     this.accountService.saveAccount(this.account).subscribe({
         next: () => {
           this.messageService.add({
@@ -138,11 +146,10 @@ export class AccountComponent implements OnInit {
           this.account = {};
         },
         error: err => {
-          console.log(err);
           this.messageService.add({
             severity: 'error',
             icon: 'pi-times-circle',
-            summary: errorMessage,
+            summary: err.error.message,
             life: 3000
           });
         }

@@ -32,9 +32,9 @@
   <ng-template #header>
     <tr>
       <th style="min-width: 14rem">Tài khoản</th>
-      <th style="min-width: 16rem">Email</th>
-      <th style="min-width: 16rem">Họ và tên</th>
-      <th style="min-width: 10rem">Số điện thoại</th>
+      <th style="min-width: 14rem">Email</th>
+      <th style="min-width: 14rem">Họ và tên</th>
+      <th style="min-width: 12rem">Số điện thoại</th>
       <th style="min-width: 10rem">Vai trò</th>
       <th style="min-width: 10rem">Trạng thái</th>
       <th style="min-width: 10rem"></th>
@@ -65,19 +65,30 @@
     <div class="flex flex-col gap-3">
       <div>
         <label for="username" class="block font-bold my-3">Tài khoản</label>
-        <input type="text" pInputText id="username" [(ngModel)]="account.username" fluid/>
+        <input type="text" pInputText id="username" [(ngModel)]="account.username" [disabled]="account.id != null"
+               fluid/>
         @if (submitted && !account.username) {
           <small class="text-red-500">Tài khoản là bắt buộc.</small>
         }
       </div>
 
-      <div>
-        <label for="password" class="block font-bold mb-3">Mật khẩu</label>
-        <p-password inputId="password" [(ngModel)]="account.password" [feedback]="false" [toggleMask]="true" fluid/>
-        @if (submitted && !account.password) {
-          <small class="text-red-500">Mật khẩu là bắt buộc.</small>
-        }
-      </div>
+      @if (!account.id) {
+        <div>
+          <label for="password" class="block font-bold mb-3">Mật khẩu</label>
+          <p-password inputId="password" [(ngModel)]="account.password" [feedback]="false" [toggleMask]="true" fluid/>
+          @if (submitted && !account.password) {
+            <small class="text-red-500">Mật khẩu là bắt buộc.</small>
+          }
+        </div>
+      }
+
+      @if (account.id) {
+        <div>
+          <label for="phoneNumber" class="block font-bold mb-3">Trạng thái</label>
+          <p-select [(ngModel)]="account.isActive" [options]="activeOptions" optionLabel="label" optionValue="value"
+                    fluid/>
+        </div>
+      }
 
       <div>
         <label class="block font-bold mb-3">Vai trò</label>

@@ -1,12 +1,14 @@
 import {Component} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {MenuItemComponent} from './menu-item/menu-item.component';
+import {AccountPanelComponent} from '../../../features/account-panel/account-panel.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [
-    MenuItemComponent
+    MenuItemComponent,
+    AccountPanelComponent
   ],
   templateUrl: './sidebar.component.html'
 })

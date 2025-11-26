@@ -132,6 +132,14 @@ export class JobComponent implements OnInit {
         };
         this.existStatus = this.jobStatusOptions.some(o => o.value === data.status);
         this.jobDialog = true;
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          icon: 'pi-times-circle',
+          summary: err.error.message,
+          life: 3000
+        });
       }
     })
   }
@@ -144,7 +152,6 @@ export class JobComponent implements OnInit {
     }
     const isCreated = !this.job.id
     const successMessage = isCreated ? 'Tạo công việc thành công' : 'Cập nhật công việc thành công';
-    const errorMessage = isCreated ? 'Tạo công việc thất bại' : 'Cập nhật công việc thất bại';
     this.jobService.saveJob(this.job).subscribe({
         next: () => {
           this.messageService.add({
@@ -157,11 +164,10 @@ export class JobComponent implements OnInit {
           this.loadData();
         },
         error: err => {
-          console.log(err);
           this.messageService.add({
             severity: 'error',
             icon: 'pi-times-circle',
-            summary: errorMessage,
+            summary: err.error.message,
             life: 3000
           });
         }
@@ -190,11 +196,10 @@ export class JobComponent implements OnInit {
             });
           },
           error: err => {
-            console.log(err);
             this.messageService.add({
               severity: 'error',
               icon: 'pi-times-circle',
-              summary: 'Xóa công việc thất bại',
+              summary: err.error.message,
               life: 3000
             });
           }

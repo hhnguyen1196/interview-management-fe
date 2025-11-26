@@ -23,17 +23,6 @@ export interface AccountList {
   totalElements: number
 }
 
-export interface Column {
-  field: string;
-  header: string;
-  customExportHeader?: string;
-}
-
-export interface ExportColumn {
-  title: string;
-  dataKey: string;
-}
-
 @Injectable()
 export class AccountService {
   private apiService = inject(ApiService);
@@ -65,22 +54,12 @@ export class AccountService {
   }
 
   getJobById(id: number): Observable<Account> {
-    return this.apiService.get<Account>(`${environment.endpoints.jobs}/${id}`).pipe(
+    return this.apiService.get<Account>(`${environment.endpoints.accounts}/${id}`).pipe(
       map(response => {
         if (response.status === 200) {
           return response.body!;
         }
         throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
-      })
-    );
-  }
-
-  deleteJob(id: number): Observable<void> {
-    return this.apiService.delete<void>(`${environment.endpoints.jobs}/${id}`).pipe(
-      map(response => {
-        if (response.status !== 204) {
-          throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
-        }
       })
     );
   }

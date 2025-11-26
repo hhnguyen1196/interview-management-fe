@@ -15,7 +15,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {SelectModule} from 'primeng/select';
 import {TextareaModule} from 'primeng/textarea';
 import {ToastModule} from 'primeng/toast';
-import {interviewStatusOptions, Option, statusOptions} from '../../utils/options';
+import {interviewStatusOptions, Option} from '../../utils/options';
 import {toLookupMap} from '../../utils/helpers';
 import {Tag} from 'primeng/tag';
 import {forkJoin} from 'rxjs';
@@ -124,7 +124,6 @@ export class InterviewComponent implements OnInit {
     }
     const isCreated = !this.interview.id
     const successMessage = isCreated ? 'Tạo lịch phỏng vấn thành công' : 'Cập nhật lịch phỏng vấn thành công';
-    const errorMessage = isCreated ? 'Tạo lịch phỏng vấn thất bại' : 'Cập nhật lịch phỏng vấn thất bại';
 
     const payload: Interview = {
       ...this.interview,
@@ -148,11 +147,10 @@ export class InterviewComponent implements OnInit {
           this.loadData();
         },
         error: err => {
-          console.log(err);
           this.messageService.add({
             severity: 'error',
             icon: 'pi-times-circle',
-            summary: errorMessage,
+            summary: err.error.message,
             life: 3000
           });
         }
@@ -186,6 +184,14 @@ export class InterviewComponent implements OnInit {
         };
         this.interviewOptions = options;
         this.interviewDialog = true;
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          icon: 'pi-times-circle',
+          summary: err.error.message,
+          life: 3000
+        });
       }
     });
   }
@@ -210,11 +216,10 @@ export class InterviewComponent implements OnInit {
             });
           },
           error: err => {
-            console.log(err);
             this.messageService.add({
               severity: 'error',
               icon: 'pi-times-circle',
-              summary: 'Xóa lịch phỏng vấn thất bại',
+              summary: err.error.message,
               life: 3000
             });
           }

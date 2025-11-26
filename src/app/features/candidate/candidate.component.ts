@@ -149,10 +149,18 @@ export class CandidateComponent implements OnInit {
       next: data => {
         this.candidate = {
           ...data,
-          dateOfBirth: new Date(data.dateOfBirth!),
+          dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth!) : undefined,
         };
         this.existStatus = this.candidateStatusOptions.some(o => o.value === data.status);
         this.candidateDialog = true;
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          icon: 'pi-times-circle',
+          summary: err.error.message,
+          life: 3000
+        });
       }
     })
   }
@@ -165,7 +173,6 @@ export class CandidateComponent implements OnInit {
     }
     const isCreated = !this.candidate.id
     const successMessage = isCreated ? 'Tạo ứng viên thành công' : 'Cập nhật ứng viên thành công';
-    const errorMessage = isCreated ? 'Tạo ứng viên thất bại' : 'Cập nhật ứng viên thất bại';
     this.candidateService.saveCandidate(this.candidate).subscribe({
         next: () => {
           this.messageService.add({
@@ -178,11 +185,10 @@ export class CandidateComponent implements OnInit {
           this.loadData();
         },
         error: err => {
-          console.log(err);
           this.messageService.add({
             severity: 'error',
             icon: 'pi-times-circle',
-            summary: errorMessage,
+            summary: err.error.message,
             life: 3000
           });
         }
@@ -211,11 +217,10 @@ export class CandidateComponent implements OnInit {
             });
           },
           error: err => {
-            console.log(err);
             this.messageService.add({
               severity: 'error',
               icon: 'pi-times-circle',
-              summary: 'Xóa ứng viên thất bại',
+              summary: err.error.message,
               life: 3000
             });
           }
