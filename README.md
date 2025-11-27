@@ -43,11 +43,10 @@ This app consumes the Interview Management backend REST APIs and provides the UI
 
 - Node.js 20.12.x
 - npm 10+ (comes with Node 20)
-- Angular CLI 18 (optional global install)
 
 ```bash
-# Install Angular
-npm install -g @angular/cli@18
+# Install Angular CLI
+npm install -g @angular/cli
 ```
 
 ### 4. Install dependencies & Run
