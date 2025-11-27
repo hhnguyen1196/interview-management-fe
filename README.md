@@ -1,27 +1,72 @@
-# 🧩 Interview Management Client
+# Interview Management – Frontend (Angular)
 
-## 🚀 Giới thiệu
-Dự án này là frontend cho hệ thống **Interview Management** được phát triển bằng [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
-
----
-
-## ⚙️ Yêu cầu hệ thống
-
-- **Node.js:** ^20.12
-- **Angular:** 18.2.21
+Frontend for the **Interview Management** system, built with **Angular** and styled with **Tailwind CSS**.  
+This app consumes the Interview Management backend REST APIs and provides the UI for managing candidates, interviews, and related data.
 
 ---
 
-## Hướng dẫn cài đặt
+## 1. Tech Stack
 
-### Chạy ứng dụng
+- **Runtime:** Node.js **20.12.x**
+- **Framework:** Angular **18.2.21**
+- **Package Manager:** npm (bundled with Node 20)
+- **Styling:** Tailwind CSS
+- **Build Tooling:** Angular CLI, TypeScript
 
-1. Tại thư mục gốc của dự án, chạy lệnh sau để cài đặt toàn bộ dependencies:
-```bash
-   npm install
+---
+
+## 2. Project Structure
+
+```text
+.
+├── src
+│   └── app
+│       ├── core/          # Core module (layout, guards, interceptors, top-level services)
+│       ├── environments/  # Environment configs (dev/prod base APIs, feature flags, etc.)
+│       ├── features/      # Feature modules (interviews, candidates, auth, dashboards, ...)
+│       ├── services/      # Reusable services (API clients, auth, notification, etc.)
+│       ├── shared/        # Shared components, directives, pipes
+│       ├── utils/         # Utility functions/helpers, models, constants
+│       ├── app.component.*  # Root app component
+│       ├── app.config.ts    # Standalone application configuration / providers
+│       └── app.routes.ts    # Application routes
+│
+├── main.ts                 # Angular bootstrap file
+├── styles.css              # Global styles (also hooks Tailwind)
+├── angular.json            # Angular workspace configuration
+├── tailwind.config.ts      # Tailwind configuration
 ```
 
-2. Chạy `ng serve` để khởi động máy chủ phát triển. Truy cập vào `http://localhost:4200/`.  
-Ứng dụng sẽ tự động tải lại khi bạn thay đổi bất kỳ tập tin nguồn nào.
+--- 
+
+## 3. Prerequisites
+
+- Node.js 20.12.x
+- npm 10+ (comes with Node 20)
+- Angular CLI 18 (optional global install)
+
+```bash
+# Install Angular
+npm install -g @angular/cli@18
+```
+
+### 4. Install dependencies & Run
+
+From the project root:
+
+```bash
+#Install dependencies
+npm install
+```
+
+```bash
+#Run the Angular app
+ng serve
+```
+---
+
+> After the application run, open http://localhost:4200/ 
+> 
+> The application will automatically reload when you change any of the source files.
 
 ---
