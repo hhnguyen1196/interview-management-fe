@@ -62,7 +62,6 @@ npm install
 #Run the Angular app
 ng serve
 ```
----
 
 > After the application run, open http://localhost:4200/ 
 > 
