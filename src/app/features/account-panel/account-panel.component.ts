@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
+import {Component, computed, EventEmitter, inject, OnInit, Output, signal} from '@angular/core';
 import {MenuModule} from 'primeng/menu';
 import {AvatarModule} from 'primeng/avatar';
 import {ButtonModule} from 'primeng/button';
@@ -39,15 +39,20 @@ export class AccountPanelComponent implements OnInit {
       }
     }
   ];
-  accountPanel!: AccountPanel;
+
+  accountPanel = signal<AccountPanel>({});
 
   constructor(private accountPanelService: AccountPanelService) {
   }
 
   ngOnInit(): void {
     this.accountPanelService.getInfoAccountById().subscribe(data => {
-      this.accountPanel = data;
+      this.accountPanel.set(data);
     });
   }
+
+  shortName = computed(() =>
+    this.accountPanel().username?.slice(0, 2).toUpperCase() || ''
+  );
 
 }
