@@ -3,6 +3,7 @@ export const environment = {
   endpoints: {
     login: 'auth/login',
     change_password: 'auth/change-password',
+    forgot_password: 'auth/forgot-password',
     jobs: 'jobs',
     candidates: 'candidates',
     interviews: 'interviews',

@@ -63,5 +63,15 @@ export class AccountService {
       })
     );
   }
+
+  sendResetPasswordEmail(username: string): Observable<void> {
+    return this.apiService.post<void, Account>(environment.endpoints.forgot_password, {}, {username: username}).pipe(
+      map(response => {
+        if (response.status !== 204) {
+          throw new Error(`Unexpected status: ${response.status}, Message: ${response.body ?? 'No details'}`);
+        }
+      })
+    );
+  }
 }
 

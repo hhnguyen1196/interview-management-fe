@@ -5,6 +5,8 @@ import {InputTextModule} from "primeng/inputtext";
 import {ChangePassword, ChangePasswordService} from './change-password.service';
 import {PasswordModule} from 'primeng/password';
 import {FormsModule} from '@angular/forms';
+import {MessageService} from 'primeng/api';
+import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-change-password',
@@ -14,14 +16,15 @@ import {FormsModule} from '@angular/forms';
     DialogModule,
     InputTextModule,
     PasswordModule,
-    FormsModule
+    FormsModule,
+    Toast
   ],
   templateUrl: './change-password.component.html',
-  providers: [ChangePasswordService]
+  providers: [ChangePasswordService, MessageService]
 })
 export class ChangePasswordComponent {
 
-  constructor(private changePasswordService: ChangePasswordService) {
+  constructor(private changePasswordService: ChangePasswordService, private messageService: MessageService) {
   }
 
   private _visible: boolean = false;
@@ -32,6 +35,7 @@ export class ChangePasswordComponent {
 
   set visible(value: boolean) {
     this._visible = value;
+    this.changePassword = {};
     if (value) {
       this.initChangePassword();
     }
@@ -47,7 +51,6 @@ export class ChangePasswordComponent {
   }
 
   onChangePassword(): void {
-    console.log(this.changePassword)
     this.submitted = true;
     if (!(this.changePassword.oldPassword?.trim() && this.changePassword.newPassword?.trim()
       && this.changePassword.confirmPassword?.trim())) {
@@ -56,7 +59,26 @@ export class ChangePasswordComponent {
     if (this.changePassword.newPassword !== this.changePassword.confirmPassword) {
       return;
     }
-    this.changePasswordService.changePassword(this.changePassword).subscribe()
+    this.changePasswordService.changePassword(this.changePassword).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'info',
+            icon: 'pi-check-circle',
+            summary: 'Đổi mật khấu thành công',
+            life: 3000
+          });
+          this.hideDialog();
+        },
+        error: err => {
+          this.messageService.add({
+            severity: 'error',
+            icon: 'pi-times-circle',
+            summary: err.error.message,
+            life: 3000
+          });
+        }
+      }
+    )
   }
 
   hideDialog() {

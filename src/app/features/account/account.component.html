@@ -142,6 +142,11 @@
   </ng-template>
 
   <ng-template #footer>
+    @if (account.id && account.isActive) {
+      <div class="w-full flex justify-start">
+        <p-button label="Gửi email khôi phục mật khẩu" icon="pi pi-envelope" text (click)="sendResetPasswordEmail()"/>
+      </div>
+    }
     <p-button label="Đóng" icon="pi pi-times" text (click)="hideDialog()"/>
     <p-button label="Lưu" icon="pi pi-check" (click)="saveAccount()"/>
   </ng-template>

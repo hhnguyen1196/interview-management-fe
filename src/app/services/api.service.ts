@@ -26,11 +26,12 @@ export class ApiService {
    * API POST
    * @param endpoint - endpoint of the API
    * @param body - request body
+   * @param params - request param
    */
-  post<T, B>(endpoint: string, body: B): Observable<HttpResponse<T>> {
+  post<T, B>(endpoint: string, body: B, params?: Record<string, any>): Observable<HttpResponse<T>> {
     const url = `${this.url}/${endpoint}`;
     let headers = this.getHeaders();
-    return this.http.post<T>(url, body, {headers, observe: 'response'});
+    return this.http.post<T>(url, body, {headers, params, observe: 'response'});
   }
 
   /**

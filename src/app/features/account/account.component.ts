@@ -157,6 +157,27 @@ export class AccountComponent implements OnInit {
     )
   }
 
+  sendResetPasswordEmail() {
+    this.accountService.sendResetPasswordEmail(this.account.username!).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'info',
+          icon: 'pi-check-circle',
+          summary: 'Email khôi phục mật khẩu đã được gửi.',
+          life: 3000
+        });
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          icon: 'pi-times-circle',
+          summary: err.error.message,
+          life: 3000
+        });
+      }
+    })
+  }
+
   getIsActiveSeverity(isActive: boolean) {
     return isActive ? 'success' : 'danger';
   }
