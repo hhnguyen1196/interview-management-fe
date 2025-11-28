@@ -6,7 +6,8 @@ import {ChangePassword, ChangePasswordService} from './change-password.service';
 import {PasswordModule} from 'primeng/password';
 import {FormsModule} from '@angular/forms';
 import {MessageService} from 'primeng/api';
-import {Toast} from 'primeng/toast';
+import {ToastModule} from 'primeng/toast';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-change-password',
@@ -17,7 +18,8 @@ import {Toast} from 'primeng/toast';
     InputTextModule,
     PasswordModule,
     FormsModule,
-    Toast
+    ToastModule,
+    ProgressSpinnerModule
   ],
   templateUrl: './change-password.component.html',
   providers: [ChangePasswordService, MessageService]
@@ -45,6 +47,7 @@ export class ChangePasswordComponent {
   @Output() visibleChange = new EventEmitter<boolean>();
   changePassword: ChangePassword = {};
   submitted = false;
+  loading = false;
 
   initChangePassword() {
     this.submitted = false;
@@ -59,8 +62,10 @@ export class ChangePasswordComponent {
     if (this.changePassword.newPassword !== this.changePassword.confirmPassword) {
       return;
     }
+    this.loading = true;
     this.changePasswordService.changePassword(this.changePassword).subscribe({
         next: () => {
+          this.loading = false;
           this.messageService.add({
             severity: 'info',
             icon: 'pi-check-circle',
@@ -70,6 +75,7 @@ export class ChangePasswordComponent {
           this.hideDialog();
         },
         error: err => {
+          this.loading = false;
           this.messageService.add({
             severity: 'error',
             icon: 'pi-times-circle',
